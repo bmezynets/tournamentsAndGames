@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "573040535680",
+    "project_id": "tournamentsandgames-696fc",
+    "storage_bucket": "tournamentsandgames-696fc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:573040535680:android:1ab15fcd947f05a3c09e65",
+        "android_client_info": {
+          "package_name": "com.example.tournamentsandgames"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBX-J26ozcv8pbsAcgIRFRWYsbNhke9Vas"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
