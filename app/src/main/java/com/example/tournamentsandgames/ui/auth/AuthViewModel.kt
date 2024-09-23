@@ -3,49 +3,31 @@ package com.example.tournamentsandgames.ui.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tournamentsandgames.data.firebase.FirebaseService
+import com.example.tournamentsandgames.data.repository.FirebaseResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class AuthViewModel(private val firebaseService: FirebaseService) : ViewModel() {
-
-    private val _loginState = MutableStateFlow<AuthState>(AuthState.Idle)
-    val loginState: StateFlow<AuthState> = _loginState
+class AuthViewModel() : ViewModel() {
+    private val firebaseService: FirebaseService = FirebaseService()
+    private val _loginState = MutableStateFlow<FirebaseResult<Unit>>(FirebaseResult.Loading)
+    val loginState: StateFlow<FirebaseResult<Unit>> = _loginState
 
     fun login(email: String, password: String) {
-        _loginState.value = AuthState.Loading
+        _loginState.value = FirebaseResult.Loading
         viewModelScope.launch {
-            firebaseService.signIn(email, password) { success, message ->
-                if (success) {
-                    _loginState.value = AuthState.Success
-                } else {
-                    _loginState.value = AuthState.Error(message ?: "Unknown error")
-                }
-            }
+            _loginState.value = firebaseService.signIn(email, password)
         }
     }
 
     fun signUp(email: String, password: String) {
-        _loginState.value = AuthState.Loading
+        _loginState.value = FirebaseResult.Loading
         viewModelScope.launch {
-            firebaseService.signUp(email, password) { success, message ->
-                if (success) {
-                    _loginState.value = AuthState.Success
-                } else {
-                    _loginState.value = AuthState.Error(message ?: "Unknown error")
-                }
-            }
+            _loginState.value = firebaseService.signUp(email, password)
         }
     }
 
     fun resetState() {
-        _loginState.value = AuthState.Idle
+        _loginState.value = FirebaseResult.Loading // Reset or change according to your logic
     }
-}
-
-sealed class AuthState {
-    object Idle : AuthState()
-    object Loading : AuthState()
-    object Success : AuthState()
-    data class Error(val message: String) : AuthState()
 }

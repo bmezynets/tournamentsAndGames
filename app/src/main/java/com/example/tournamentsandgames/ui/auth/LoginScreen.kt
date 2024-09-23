@@ -1,90 +1,58 @@
 package com.example.tournamentsandgames.ui.auth
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.tournamentsandgames.data.repository.FirebaseResult
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(
-    authViewModel: AuthViewModel = viewModel(),
-    onLoginSuccess: () -> Unit
-) {
+fun LoginScreen() {
+    val viewModel: AuthViewModel = AuthViewModel()
+    // Collecting the login state from the ViewModel
+    val loginState by viewModel.loginState.collectAsState()
+
+    // State variables for email and password inputs
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    val loginState by authViewModel.loginState.collectAsState()
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // TextField for Email Input
         TextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
+            label = { Text("Email") }
         )
+        Spacer(modifier = Modifier.height(8.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
-
+        // TextField for Password Input
         TextField(
             value = password,
             onValueChange = { password = it },
             label = { Text("Password") },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            visualTransformation = PasswordVisualTransformation()
         )
-
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Button to Trigger Login
+        Button(onClick = { viewModel.login(email, password) }) {
+            Text("Login")
+        }
+
+        // Displaying the login state
         when (loginState) {
-            is AuthState.Idle, is AuthState.Error -> {
-                Button(
-                    onClick = { authViewModel.login(email, password) },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Login")
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                TextButton(onClick = { authViewModel.signUp(email, password) }) {
-                    Text("Sign Up")
-                }
-
-                if (loginState is AuthState.Error) {
-                    Text(
-                        text = (loginState as AuthState.Error).message,
-                        color = MaterialTheme.colors.error
-                    )
-                }
-            }
-            AuthState.Loading -> {
-                CircularProgressIndicator()
-            }
-            AuthState.Success -> {
-                // Jeśli logowanie/rejestracja zakończyły się sukcesem, przekieruj na ekran główny
-                LaunchedEffect(Unit) {
-                    onLoginSuccess()
-                }
-            }
+            is FirebaseResult.Loading -> CircularProgressIndicator()
+            is FirebaseResult.Success -> Text("Login Successful!")
+            is FirebaseResult.Error -> Text((loginState as FirebaseResult.Error).exception.localizedMessage ?: "Unknown error")
+            else -> {}
         }
     }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview2() {
-    LoginScreen(onLoginSuccess = {
-        // Pusta implementacja dla podglądu
-    })
 }

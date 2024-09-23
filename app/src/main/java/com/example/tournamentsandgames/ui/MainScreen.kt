@@ -1,29 +1,64 @@
 package com.example.tournamentsandgames.ui
 
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.example.tournamentsandgames.ui.auth.LoginScreen
-import com.example.tournamentsandgames.ui.home.HomeScreen
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
-    val navController: NavHostController = rememberNavController()
-
-    NavHost(navController = navController, startDestination = "login") {
-        composable("login") {
-            LoginScreen(onLoginSuccess = {
-                // Po udanym zalogowaniu nawiguj na ekran główny
-                navController.navigate("home") {
-                    popUpTo("login") { inclusive = true }  // Usuwa ekran logowania z backstacku
+fun MainScreen(navController: NavController) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Tournaments & Games") },
+                actions = {
+                    IconButton(onClick = { /* Handle logout action */ }) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Logout")
+                    }
                 }
-            })
-        }
+            )
+        },
+        content = { padding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = "Welcome to the Tournaments & Games App!", style = MaterialTheme.typography.titleLarge)
+                Spacer(modifier = Modifier.height(16.dp))
 
-        composable("home") {
-            HomeScreen() // Ekran główny aplikacji po zalogowaniu
+                Button(
+                    onClick = { navController.navigate("tournaments") }, // Navigate to Tournament Screen
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(text = "View Tournaments")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = { navController.navigate("profile") }, // Navigate to Profile Screen
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(text = "View Profile")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = { /* Additional actions can be added here */ },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(text = "Other Features")
+                }
+            }
         }
-    }
+    )
 }
