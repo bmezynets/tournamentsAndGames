@@ -2,6 +2,8 @@ package com.example.tournamentsandgames.data.repository
 
 import com.example.tournamentsandgames.data.model.User
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.tasks.await
 
@@ -41,7 +43,34 @@ class UserRepository {
     }
 
     // Function to get the currently authenticated user
-    fun getCurrentUser() = auth.currentUser
+    fun getCurrentUser(): FirebaseUser? {
+        return auth.currentUser
+    }
+
+    fun isUserLoggedIn(): Boolean {
+        return auth.currentUser != null
+    }
+
+    fun updateUserName(name: String, surname: String, onComplete: (Boolean, Exception?) -> Unit) {
+        val user: FirebaseUser? = auth.currentUser
+
+        user?.let {
+            val profileUpdates = UserProfileChangeRequest.Builder()
+                .setDisplayName("$name $surname")
+                .build()
+
+            it.updateProfile(profileUpdates)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        onComplete(true, null)
+                    } else {
+                        onComplete(false, task.exception)
+                    }
+                }
+        } ?: run {
+            onComplete(false, Exception("User not logged in"))
+        }
+    }
 
     // Function to log out the current user
     fun logout() {
