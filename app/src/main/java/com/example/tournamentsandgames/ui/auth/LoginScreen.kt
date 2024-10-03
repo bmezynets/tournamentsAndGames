@@ -76,7 +76,6 @@ fun LoginScreen() {
         }
 
         when (loginState) {
-            is FirebaseResult.Loading -> CircularProgressIndicator()
             is FirebaseResult.Success -> LocalContext.current.startActivity(Intent(LocalContext.current, Home::class.java))
             is FirebaseResult.Error -> showModal = true
             else -> {}

@@ -3,4 +3,5 @@
     <string name="title_activity_login_screen">LoginScreen</string>
     <string name="title_activity_home">Home</string>
     <string name="title_activity_edit_personal_data">EditPersonalData</string>
+    <string name="title_activity_add_tournament">AddTournamentActivity</string>
 </resources>
