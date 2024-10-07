@@ -1,5 +1,6 @@
 package com.example.tournamentsandgames.ui.tournaments
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,6 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tournamentsandgames.data.model.Tournament
 import com.example.tournamentsandgames.data.repository.FirebaseResult
+import com.example.tournamentsandgames.ui.auth.AuthViewModel
+import com.example.tournamentsandgames.ui.home.Home
 import com.example.tournamentsandgames.ui.tournaments.ui.theme.TournamentsAndGamesTheme
 
 class AddTournamentActivity : ComponentActivity() {
@@ -62,7 +66,7 @@ fun AddTournamentScreen() {
     var tournamentName by remember { mutableStateOf("") }
     var numberOfRounds by remember { mutableStateOf("") }
     val activity = LocalContext.current as? ComponentActivity
-
+    val currentUser = AuthViewModel().getCurrentUser()
     // Obsługa widoku w zależności od stanu dodawania turnieju
     Column(
         modifier = Modifier
@@ -93,19 +97,21 @@ fun AddTournamentScreen() {
             onClick = {
                 // Dodanie nowego turnieju
                 val tournament = Tournament(
-                    id = "", // Id zostanie wygenerowane w Firebase
+                    id = "",
                     name = tournamentName,
-                    rounds = numberOfRounds.toIntOrNull() ?: 0
+                    rounds = numberOfRounds.toIntOrNull() ?: 0,
+                    createdBy = currentUser!!.uid
                 )
-
 
                 try {
                     tournamentViewModel.addTournament(tournament)
+                    activity!!.startActivity(Intent(activity, Home::class.java))
                 } catch (e: Exception) {
                     Log.e("FirebaseError", "Error fetching data: ${e.message}")
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(10.dp)
         ) {
             Text("Add Tournament")
         }
@@ -114,7 +120,6 @@ fun AddTournamentScreen() {
 
         // Obsługa różnych stanów dodawania turnieju
         when (addTournamentState) {
-            is FirebaseResult.Loading -> CircularProgressIndicator()
             is FirebaseResult.Success -> {
                 Text("Tournament added successfully!")
                 activity?.finish()

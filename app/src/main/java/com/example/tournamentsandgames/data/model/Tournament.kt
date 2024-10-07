@@ -5,5 +5,6 @@ data class Tournament(
     val name: String = "",
     val teams: List<Team> = listOf(),
     val rounds: Int = 0,
-    val matches: List<Match> = listOf()
+    val matches: List<Match> = listOf(),
+    val createdBy: String = ""
 )
