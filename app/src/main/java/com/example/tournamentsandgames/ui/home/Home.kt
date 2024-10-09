@@ -90,7 +90,11 @@ fun HomeScreen() {
 
     // Pobierz listę turniejów
     LaunchedEffect(Unit) {
-        tournamentViewModel.getTournaments()
+        if(currentUser != null) {
+            tournamentViewModel.getTournamentsByUserId(currentUser.uid)
+        }else {
+            tournamentViewModel.getTournaments()
+        }
     }
 
     Column(

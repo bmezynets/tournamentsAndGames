@@ -29,7 +29,15 @@ class TournamentViewModel : ViewModel() {
 
     fun getTournaments() {
         viewModelScope.launch {
-            _tournamentsState.value = tournamentRepository.getTournaments()  // Fetch tournaments
+            _tournamentsState.value = tournamentRepository.getTournaments()
+        }
+    }
+
+    fun getTournamentsByUserId(userId: String) {
+        viewModelScope.launch {
+            _tournamentsState.value = FirebaseResult.Loading
+            val result = tournamentRepository.getTournamentsByUserId(userId)
+            _tournamentsState.value = result
         }
     }
 }

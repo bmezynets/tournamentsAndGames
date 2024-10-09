@@ -4,4 +4,6 @@
     <string name="title_activity_home">Home</string>
     <string name="title_activity_edit_personal_data">EditPersonalData</string>
     <string name="title_activity_add_tournament">AddTournamentActivity</string>
+    <string name="title_activity_add_team">AddTeamActivity</string>
+    <string name="title_activity_add_player">AddPlayerActivity</string>
 </resources>

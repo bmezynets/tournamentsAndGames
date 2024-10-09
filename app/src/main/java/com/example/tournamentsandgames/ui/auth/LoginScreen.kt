@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.example.tournamentsandgames.data.repository.FirebaseResult
 import com.example.tournamentsandgames.ui.home.Home
 import com.example.tournamentsandgames.ui.home.HomeScreen
+import com.example.tournamentsandgames.ui.home.ui.theme.colorMain
 import com.example.tournamentsandgames.ui.home.ui.theme.primaryColor
 import com.example.tournamentsandgames.ui.home.ui.theme.tintColor
 
@@ -37,11 +38,16 @@ fun LoginScreen() {
         TextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Email") },
+            label = { Text("Login") },
             colors = TextFieldDefaults.textFieldColors(
                 containerColor = tintColor,
                 unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent),
+                focusedIndicatorColor = Color.Transparent,
+                textColor = Color.Black,
+                disabledLabelColor = primaryColor,
+                focusedLabelColor = primaryColor,
+                unfocusedLabelColor = primaryColor,
+            ),
             shape = RoundedCornerShape(10.dp)
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -50,12 +56,17 @@ fun LoginScreen() {
         TextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Password") },
+            label = { Text("Hasło") },
             visualTransformation = PasswordVisualTransformation(),
             colors = TextFieldDefaults.textFieldColors(
                 containerColor = tintColor,
                 unfocusedIndicatorColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
+                textColor = Color.Black,
+                disabledLabelColor = primaryColor,
+                focusedLabelColor = primaryColor,
+                unfocusedLabelColor = primaryColor,
+
             ),
             shape = RoundedCornerShape(10.dp)
         )
