@@ -40,4 +40,12 @@ class TournamentViewModel : ViewModel() {
             _tournamentsState.value = result
         }
     }
+
+    fun getTournamentsById(id: String) {
+        viewModelScope.launch {
+            _tournamentsState.value = FirebaseResult.Loading
+            val result = tournamentRepository.getTournamentsById(id)
+            _tournamentsState.value = result
+        }
+    }
 }

@@ -6,8 +6,9 @@ import android.os.Parcelable
 @Parcelize
 data class Player(
     val id: String = "",
+    val _id: String = "",
     val name: String = "",
     val surname: String = "",
-    val tournaments: List<String> = listOf(),
+    val tournamentId: String = "",
     val teamId: String = ""
 ) : Parcelable

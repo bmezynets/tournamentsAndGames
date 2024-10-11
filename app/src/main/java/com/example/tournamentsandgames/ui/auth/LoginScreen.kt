@@ -9,8 +9,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.tournamentsandgames.data.repository.FirebaseResult
 import com.example.tournamentsandgames.ui.home.Home
 import com.example.tournamentsandgames.ui.home.HomeScreen
@@ -34,6 +37,17 @@ fun LoginScreen() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Text(
+            text = "Logowanie",
+            style = TextStyle(
+                fontSize = 23.sp,
+                fontWeight = FontWeight.Bold
+            ),
+            color = Color.Black.copy(alpha = 0.6f)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         // TextField for Email Input
         TextField(
             value = email,

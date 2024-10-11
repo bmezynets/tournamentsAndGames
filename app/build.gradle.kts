@@ -60,6 +60,7 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.navigation:navigation-compose:2.8.1")
+    implementation("androidx.compose.material:material-icons-core:1.7.3")
 
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:32.0.0"))
