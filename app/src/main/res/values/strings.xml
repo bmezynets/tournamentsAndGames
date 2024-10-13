@@ -6,4 +6,6 @@
     <string name="title_activity_add_tournament">AddTournamentActivity</string>
     <string name="title_activity_add_team">AddTeamActivity</string>
     <string name="title_activity_add_player">AddPlayerActivity</string>
+    <string name="title_activity_add_second_player">AddSecondPlayerActivity</string>
+    <string name="title_activity_create_tournament_summary">CreateTournamentSummaryActivity</string>
 </resources>

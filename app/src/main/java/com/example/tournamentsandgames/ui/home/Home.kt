@@ -3,10 +3,12 @@ package com.example.tournamentsandgames.ui.home
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -49,16 +51,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.tournamentsandgames.R
+import com.example.tournamentsandgames.data.model.Team
 import com.example.tournamentsandgames.data.model.Tournament
 import com.example.tournamentsandgames.data.repository.FirebaseResult
 import com.example.tournamentsandgames.ui.auth.AuthViewModel
 import com.example.tournamentsandgames.ui.home.ui.theme.Pink40
 import com.example.tournamentsandgames.ui.home.ui.theme.Purple80
 import com.example.tournamentsandgames.ui.home.ui.theme.TournamentsAndGamesTheme
+import com.example.tournamentsandgames.ui.home.ui.theme.colorMain
+import com.example.tournamentsandgames.ui.home.ui.theme.darkTint
 import com.example.tournamentsandgames.ui.home.ui.theme.primaryColor
+import com.example.tournamentsandgames.ui.home.ui.theme.tintColor
 import com.example.tournamentsandgames.ui.profile.EditPersonalData
 import com.example.tournamentsandgames.ui.theme.Pink80
 import com.example.tournamentsandgames.ui.tournaments.AddTournamentActivity
+import com.example.tournamentsandgames.ui.tournaments.TeamCard
 import com.example.tournamentsandgames.ui.tournaments.TournamentViewModel
 
 class Home : ComponentActivity() {
@@ -206,7 +213,7 @@ fun HomeScreen() {
                     is FirebaseResult.Success -> {
                         val tournaments = result.data
                         if (tournaments.isNotEmpty()) {
-                            LazyColumn {
+                            /*LazyColumn {
                                 items(tournaments) { tournament ->
                                     Row(
                                         modifier = Modifier
@@ -227,6 +234,14 @@ fun HomeScreen() {
                                         )
                                     }
                                 }
+                            }*/
+                            LazyColumn {
+                                items(tournaments) { tournament ->
+                                    HomeCard(tournament = tournament) {
+                                        // Handle onClick for the team card here
+                                        Toast.makeText(activity, "Clicked on ${tournament.name}", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
                             }
                         } else {
                             Text("Nie masz jeszcze turniejów.")
@@ -236,6 +251,43 @@ fun HomeScreen() {
                         Text("Błąd: ${result.exception.message}")
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun HomeCard(tournament: Tournament, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .clickable { onClick() },
+        elevation = CardDefaults.cardElevation(1.dp),
+        colors = CardDefaults.cardColors(containerColor = darkTint.copy(alpha = 0.8f))
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = tournament.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(0.5f),
+                    color = Color.Black.copy(alpha = 0.7f)
+                )
+                Text(
+                    text = "Rundy: ${tournament.rounds}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(0.3f),
+                    textAlign = TextAlign.End,
+                    color = Color.Black.copy(alpha = 0.7f)
+                )
             }
         }
     }

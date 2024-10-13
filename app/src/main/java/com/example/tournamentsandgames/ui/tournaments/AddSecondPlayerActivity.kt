@@ -63,7 +63,7 @@ import com.example.tournamentsandgames.ui.tournaments.ui.theme.TournamentsAndGam
 import kotlinx.coroutines.delay
 import java.util.UUID
 
-class AddPlayerActivity : ComponentActivity() {
+class AddSecondPlayerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val tournament = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -78,7 +78,7 @@ class AddPlayerActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Step2(tournament)
+                    Step4(tournament)
                 }
             }
         }
@@ -87,25 +87,22 @@ class AddPlayerActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Step2(tournament: Tournament?) {
+fun Step4(tournament: Tournament?) {
     val activity = LocalContext.current as? ComponentActivity
     val playerViewModel = PlayerViewModel()
 
-    var firstPlayerName by remember { mutableStateOf("") }
-    var firstPlayerSurname by remember { mutableStateOf("") }
     var secondPlayerName by remember { mutableStateOf("") }
     var secondPlayerSurname by remember { mutableStateOf("") }
+    val currentUser = AuthViewModel().getCurrentUser()
 
     if(tournament === null) {
-        Toast.makeText(activity, "Błąd w trakcie dodania gracza! Spróbuj ponownie", Toast.LENGTH_SHORT).show()
+        Toast.makeText(activity, "Błąd w trakcie tworzenia turnieju! Spróbuj ponownie", Toast.LENGTH_SHORT).show()
         LaunchedEffect(Unit) {
             delay(4000)
             activity?.startActivity(Intent(activity, Home::class.java))
             activity?.finish()
         }
     }
-
-    val currentUser = AuthViewModel().getCurrentUser()
 
     Box(
         modifier = Modifier
@@ -119,7 +116,6 @@ fun Step2(tournament: Tournament?) {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Karta dla użytkownika
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 modifier = Modifier
@@ -161,7 +157,7 @@ fun Step2(tournament: Tournament?) {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "Dodaj 1 gracza",
+                        text = "Dodaj przeciwnika",
                         style = TextStyle(
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
@@ -196,8 +192,8 @@ fun Step2(tournament: Tournament?) {
                         Spacer(modifier = Modifier.width(8.dp))
 
                         TextField(
-                            value = firstPlayerName,
-                            onValueChange = { firstPlayerName = it },
+                            value = secondPlayerName,
+                            onValueChange = { secondPlayerName = it },
                             label = { Text("Imię") },
                             modifier = Modifier.fillMaxWidth(),
                             colors = TextFieldDefaults.textFieldColors(
@@ -240,8 +236,8 @@ fun Step2(tournament: Tournament?) {
                         Spacer(modifier = Modifier.width(8.dp))
 
                         TextField(
-                            value = firstPlayerSurname,
-                            onValueChange = { firstPlayerSurname = it },
+                            value = secondPlayerSurname,
+                            onValueChange = { secondPlayerSurname = it },
                             label = { Text("Nazwisko") },
                             modifier = Modifier.fillMaxWidth(),
                             colors = TextFieldDefaults.textFieldColors(
@@ -265,17 +261,17 @@ fun Step2(tournament: Tournament?) {
                         val player = Player(
                             id = "",
                             _id = UUID.randomUUID().toString(),
-                            name = firstPlayerName,
-                            surname = firstPlayerSurname,
+                            name = secondPlayerName,
+                            surname = secondPlayerSurname,
                             tournamentId = tournament!!._id
                         )
 
                         try {
-                            if (firstPlayerName.isNotEmpty() && firstPlayerSurname.isNotEmpty()) {
+                            if (secondPlayerName.isNotEmpty() && secondPlayerSurname.isNotEmpty()) {
                                 val team = Team(
                                     id = "",
                                     _id = UUID.randomUUID().toString(),
-                                    name = "$firstPlayerName $firstPlayerSurname",
+                                    name = "$secondPlayerName $secondPlayerSurname",
                                     points = 0,
                                     players = listOf(player)
                                 )
@@ -283,7 +279,7 @@ fun Step2(tournament: Tournament?) {
                                 tournament.teams.add(team)
                                 val intent = Intent(
                                     activity,
-                                    AddSecondPlayerActivity::class.java
+                                    CreateTournamentSummaryActivity::class.java
                                 ).putExtra("tournament", tournament)
                                 //intent = Intent(activity, AddSecondPlayerActivity::class.java).putExtra("", tournament)
                                 activity!!.startActivity(intent)
@@ -308,19 +304,6 @@ fun Step2(tournament: Tournament?) {
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
-
-                // Obsługa różnych stanów dodawania turnieju
-                /*when (addTournamentState) {
-                is FirebaseResult.Success -> {
-                    Text("Tournament added successfully!")
-                    activity?.finish()
-                }
-                is FirebaseResult.Error -> {
-                    val errorMessage = (addTournamentState as FirebaseResult.Error).exception.message
-                    Text("FIREBASE ADD TOURNAMENT ERROR: $errorMessage")
-                }
-                else -> Log.d("FIREBASE ADD TOURNAMENT", FirebaseResult.Loading.toString())
-            }*/
             }
 
             Spacer(modifier = Modifier.weight(1f))
@@ -344,7 +327,7 @@ fun Step2(tournament: Tournament?) {
                     modifier = Modifier
                         .size(14.dp)
                         .clip(CircleShape)
-                        .background(primaryColor)
+                        .border(2.dp, primaryColor, CircleShape)
                 )
 
                 Spacer(modifier = Modifier.width(16.dp))
@@ -353,7 +336,7 @@ fun Step2(tournament: Tournament?) {
                     modifier = Modifier
                         .size(14.dp)
                         .clip(CircleShape)
-                        .border(2.dp, primaryColor, CircleShape)
+                        .background(primaryColor)
                 )
 
                 Spacer(modifier = Modifier.height(48.dp))

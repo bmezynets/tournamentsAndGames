@@ -13,6 +13,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TournamentsAndGames">
         <activity
+            android:name=".ui.tournaments.CreateTournamentSummaryActivity"
+            android:exported="false"
+            android:label="@string/title_activity_create_tournament_summary"
+            android:theme="@style/Theme.TournamentsAndGames" />
+        <activity
+            android:name=".ui.tournaments.AddSecondPlayerActivity"
+            android:exported="false"
+            android:label="@string/title_activity_add_second_player"
+            android:theme="@style/Theme.TournamentsAndGames" />
+        <activity
             android:name=".ui.tournaments.AddPlayerActivity"
             android:exported="false"
             android:label="@string/title_activity_add_player"

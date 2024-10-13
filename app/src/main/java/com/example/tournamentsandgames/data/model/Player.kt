@@ -10,5 +10,5 @@ data class Player(
     val name: String = "",
     val surname: String = "",
     val tournamentId: String = "",
-    val teamId: String = ""
+    var teamId: String = ""
 ) : Parcelable

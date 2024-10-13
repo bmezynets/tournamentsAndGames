@@ -98,210 +98,229 @@ fun AddTournamentScreen() {
     val currentUser = AuthViewModel().getCurrentUser()
 
     // Obsługa widoku w zależności od stanu dodawania turnieju
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.SpaceBetween, // This will position elements properly
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(bottom = 30.dp)
     ) {
-
-        Spacer(modifier = Modifier.height(80.dp))
-
         Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "Krok 1",
-                style = TextStyle(
-                    fontSize = 30.sp,
-                    fontWeight = FontWeight.Bold
-                ),
-                color = Color.Black.copy(alpha = 0.6f)
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            TextField(
-                value = tournamentName,
-                onValueChange = { tournamentName = it },
-                label = { Text("Nazwa turnieju") },
-                modifier = Modifier.fillMaxWidth(),
-                colors = TextFieldDefaults.textFieldColors(
-                    containerColor = tintColor,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    textColor = Color.Black,
-                    disabledLabelColor = primaryColor,
-                    focusedLabelColor = primaryColor,
-                    unfocusedLabelColor = primaryColor,
-                ),
-                shape = RoundedCornerShape(10.dp)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            TextField(
-                value = numberOfRounds,
-                onValueChange = { numberOfRounds = it },
-                label = { Text("Ilość rund") },
-                modifier = Modifier.fillMaxWidth(),
-                colors = TextFieldDefaults.textFieldColors(
-                    containerColor = tintColor,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    textColor = Color.Black,
-                    disabledLabelColor = primaryColor,
-                    focusedLabelColor = primaryColor,
-                    unfocusedLabelColor = primaryColor,
-                ),
-                shape = RoundedCornerShape(10.dp)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ){
-                Text(
-                    text = "Typ drużyny:",
-                    style = TextStyle(
-                        fontSize = 20.sp
-                    ),
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Checkbox(
-                    checked = isTeamTournament,
-                    onCheckedChange = { isChecked ->
-                        isTeamTournament = isChecked
-                        if (isChecked) {
-                            isTwoPlayerTournament = false
-                        }
-                    },
-                    colors = CheckboxDefaults.colors(checkedColor = colorMain)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Wieloosobowa")
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Checkbox(
-                    checked = isTwoPlayerTournament,
-                    onCheckedChange = { isChecked ->
-                        isTwoPlayerTournament = isChecked
-                        if (isChecked) {
-                            isTeamTournament = false
-                        }
-                    },
-                    colors = CheckboxDefaults.colors(checkedColor = colorMain)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Jednoosobowa")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    // Dodanie nowego turnieju
-                    val tournament = Tournament(
-                        id = "",
-                        _id = UUID.randomUUID().toString(),
-                        name = tournamentName,
-                        rounds = numberOfRounds.toIntOrNull() ?: 0,
-                        createdBy = currentUser!!.uid
-                    )
-
-                    try {
-                        tournamentViewModel.addTournament(tournament)
-                        activity!!.startActivity(Intent(activity, Home::class.java))
-                        if (isTeamTournament) {
-                            val intent = Intent(activity, AddTeamActivity::class.java).putExtra("tournament", tournament)
-                            activity!!.startActivity(intent)
-                        }
-                        else if (isTwoPlayerTournament){
-                            val intent = Intent(activity, AddPlayerActivity::class.java).putExtra("tournament", tournament)
-                            activity!!.startActivity(intent)
-                        } else {
-                            Toast.makeText(activity, "Musisz wybrać rodzaj turnieju!", Toast.LENGTH_SHORT).show()
-                        }
-                    } catch (e: Exception) {
-                        Log.e("FirebaseError", "Error fetching data: ${e.message}")
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(primaryColor)
-            ) {
-                Text("Dalej")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Obsługa różnych stanów dodawania turnieju
-            when (addTournamentState) {
-                is FirebaseResult.Success -> {
-                    Text("Tournament added successfully!")
-                    activity?.finish()
-                }
-                is FirebaseResult.Error -> {
-                    val errorMessage = (addTournamentState as FirebaseResult.Error).exception.message
-                    Text("FIREBASE ADD TOURNAMENT ERROR: $errorMessage")
-                }
-                else -> Log.d("FIREBASE ADD TOURNAMENT", FirebaseResult.Loading.toString())
-            }
-        }
-
-        Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 30.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(
+
+            Spacer(modifier = Modifier.height(80.dp))
+
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Krok 1",
+                    style = TextStyle(
+                        fontSize = 30.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = Color.Black.copy(alpha = 0.6f)
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                TextField(
+                    value = tournamentName,
+                    onValueChange = { tournamentName = it },
+                    label = { Text("Nazwa turnieju") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.textFieldColors(
+                        containerColor = tintColor,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        textColor = Color.Black,
+                        disabledLabelColor = primaryColor,
+                        focusedLabelColor = primaryColor,
+                        unfocusedLabelColor = primaryColor,
+                    ),
+                    shape = RoundedCornerShape(10.dp)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                TextField(
+                    value = numberOfRounds,
+                    onValueChange = { numberOfRounds = it },
+                    label = { Text("Ilość rund") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.textFieldColors(
+                        containerColor = tintColor,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        textColor = Color.Black,
+                        disabledLabelColor = primaryColor,
+                        focusedLabelColor = primaryColor,
+                        unfocusedLabelColor = primaryColor,
+                    ),
+                    shape = RoundedCornerShape(10.dp)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Typ drużyny:",
+                        style = TextStyle(
+                            fontSize = 20.sp
+                        ),
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = isTeamTournament,
+                        onCheckedChange = { isChecked ->
+                            isTeamTournament = isChecked
+                            if (isChecked) {
+                                isTwoPlayerTournament = false
+                            }
+                        },
+                        colors = CheckboxDefaults.colors(checkedColor = colorMain)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Wieloosobowa")
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = isTwoPlayerTournament,
+                        onCheckedChange = { isChecked ->
+                            isTwoPlayerTournament = isChecked
+                            if (isChecked) {
+                                isTeamTournament = false
+                            }
+                        },
+                        colors = CheckboxDefaults.colors(checkedColor = colorMain)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Jednoosobowa")
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        // Dodanie nowego turnieju
+                        val tournament = Tournament(
+                            id = "",
+                            _id = UUID.randomUUID().toString(),
+                            name = tournamentName,
+                            rounds = numberOfRounds.toIntOrNull() ?: 0,
+                            createdBy = currentUser!!.uid
+                        )
+
+                        try {
+                            /*tournamentViewModel.addTournament(tournament)
+                        activity!!.startActivity(Intent(activity, Home::class.java))*/
+                            if (isTeamTournament) {
+                                val intent = Intent(
+                                    activity,
+                                    AddTeamActivity::class.java
+                                ).putExtra("tournament", tournament)
+                                activity!!.startActivity(intent)
+                            } else if (isTwoPlayerTournament) {
+                                val intent = Intent(
+                                    activity,
+                                    AddPlayerActivity::class.java
+                                ).putExtra("tournament", tournament)
+                                activity!!.startActivity(intent)
+                            } else {
+                                Toast.makeText(
+                                    activity,
+                                    "Musisz wybrać rodzaj turnieju!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        } catch (e: Exception) {
+                            Log.e("FirebaseError", "Error fetching data: ${e.message}")
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(primaryColor)
+                ) {
+                    Text("Dalej")
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Obsługa różnych stanów dodawania turnieju
+                when (addTournamentState) {
+                    is FirebaseResult.Success -> {
+                        Text("Tournament added successfully!")
+                        activity?.finish()
+                    }
+
+                    is FirebaseResult.Error -> {
+                        val errorMessage =
+                            (addTournamentState as FirebaseResult.Error).exception.message
+                        Text("FIREBASE ADD TOURNAMENT ERROR: $errorMessage")
+                    }
+
+                    else -> Log.d("FIREBASE ADD TOURNAMENT", FirebaseResult.Loading.toString())
+                }
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Row(
                 modifier = Modifier
-                    .size(14.dp)
-                    .clip(CircleShape)
-                    .background(primaryColor)
-            )
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(14.dp)
+                        .clip(CircleShape)
+                        .background(primaryColor)
+                )
 
-            Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(16.dp))
 
-            Box(
-                modifier = Modifier
-                    .size(14.dp)
-                    .clip(CircleShape)
-                    .border(2.dp, primaryColor, CircleShape)
-            )
+                Box(
+                    modifier = Modifier
+                        .size(14.dp)
+                        .clip(CircleShape)
+                        .border(2.dp, primaryColor, CircleShape)
+                )
 
-            Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(16.dp))
 
-            Box(
-                modifier = Modifier
-                    .size(14.dp)
-                    .clip(CircleShape)
-                    .border(2.dp, primaryColor, CircleShape)
-            )
+                Box(
+                    modifier = Modifier
+                        .size(14.dp)
+                        .clip(CircleShape)
+                        .border(2.dp, primaryColor, CircleShape)
+                )
 
-            Spacer(modifier = Modifier.height(48.dp))
+                Spacer(modifier = Modifier.height(48.dp))
+            }
         }
     }
 }
