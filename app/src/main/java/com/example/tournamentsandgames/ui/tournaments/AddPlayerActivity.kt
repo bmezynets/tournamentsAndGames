@@ -119,7 +119,6 @@ fun Step2(tournament: Tournament?) {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Karta dla użytkownika
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 modifier = Modifier
@@ -201,13 +200,13 @@ fun Step2(tournament: Tournament?) {
                             label = { Text("Imię") },
                             modifier = Modifier.fillMaxWidth(),
                             colors = TextFieldDefaults.textFieldColors(
-                                containerColor = tintColor,
-                                unfocusedIndicatorColor = Color.Transparent,
+                                containerColor = Color.White,
                                 focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
                                 textColor = Color.Black,
-                                disabledLabelColor = primaryColor,
-                                focusedLabelColor = primaryColor,
-                                unfocusedLabelColor = primaryColor,
+                                disabledLabelColor = Color.Gray,
+                                focusedLabelColor = Color.Blue,
+                                unfocusedLabelColor = Color.Gray,
                             ),
                             shape = RoundedCornerShape(10.dp)
                         )
@@ -308,19 +307,6 @@ fun Step2(tournament: Tournament?) {
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
-
-                // Obsługa różnych stanów dodawania turnieju
-                /*when (addTournamentState) {
-                is FirebaseResult.Success -> {
-                    Text("Tournament added successfully!")
-                    activity?.finish()
-                }
-                is FirebaseResult.Error -> {
-                    val errorMessage = (addTournamentState as FirebaseResult.Error).exception.message
-                    Text("FIREBASE ADD TOURNAMENT ERROR: $errorMessage")
-                }
-                else -> Log.d("FIREBASE ADD TOURNAMENT", FirebaseResult.Loading.toString())
-            }*/
             }
 
             Spacer(modifier = Modifier.weight(1f))

@@ -12,5 +12,5 @@ val Pink40 = Color(0xFF7D5260)
 
 val primaryColor = Color(0xFFFF8343)
 val tintColor = Color(0xFFF1DEC6)
-val darkTint = Color(0xFF179BAE)
+val darkTint = Color(0xFFF0F8FF)
 val colorMain = Color(0xFF4158A6)

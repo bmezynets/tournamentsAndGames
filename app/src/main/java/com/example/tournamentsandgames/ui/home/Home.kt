@@ -23,11 +23,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material3.AlertDialogDefaults.shape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
@@ -42,14 +47,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.tournamentsandgames.R
 import com.example.tournamentsandgames.data.model.Team
 import com.example.tournamentsandgames.data.model.Tournament
@@ -205,6 +213,8 @@ fun HomeScreen() {
                     style = MaterialTheme.typography.headlineSmall
                 )
 
+                Spacer(modifier = Modifier.height(8.dp))
+
                 // Handling tournamentsState
                 when (val result = tournamentsState) {
                     is FirebaseResult.Loading -> {
@@ -261,7 +271,7 @@ fun HomeCard(tournament: Tournament, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(vertical = 3.dp)
             .clickable { onClick() },
         elevation = CardDefaults.cardElevation(1.dp),
         colors = CardDefaults.cardColors(containerColor = darkTint.copy(alpha = 0.8f))
@@ -277,7 +287,10 @@ fun HomeCard(tournament: Tournament, onClick: () -> Unit) {
             ) {
                 Text(
                     text = tournament.name,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
                     modifier = Modifier.weight(0.5f),
                     color = Color.Black.copy(alpha = 0.7f)
                 )
@@ -287,6 +300,11 @@ fun HomeCard(tournament: Tournament, onClick: () -> Unit) {
                     modifier = Modifier.weight(0.3f),
                     textAlign = TextAlign.End,
                     color = Color.Black.copy(alpha = 0.7f)
+                )
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = "forward",
+                    tint = colorMain
                 )
             }
         }
