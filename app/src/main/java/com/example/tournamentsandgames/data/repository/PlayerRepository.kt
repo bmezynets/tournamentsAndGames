@@ -49,4 +49,13 @@ class PlayerRepository {
             FirebaseResult.Error(e)
         }
     }
+
+    suspend fun deletePlayer(playerId: String): FirebaseResult<Unit> {
+        return try {
+            database.child(playerId).removeValue().await()
+            FirebaseResult.Success(Unit)
+        } catch (e: Exception) {
+            FirebaseResult.Error(e)
+        }
+    }
 }

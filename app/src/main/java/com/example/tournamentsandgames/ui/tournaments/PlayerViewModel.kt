@@ -12,12 +12,14 @@ import kotlinx.coroutines.launch
 class PlayerViewModel: ViewModel() {
     private val playerRepository = PlayerRepository()
 
-    private val _playersState = MutableStateFlow<FirebaseResult<List<Player>>>(
-        FirebaseResult.Loading)
-    val tournamentsState: StateFlow<FirebaseResult<List<Player>>> = _playersState
+    private val _playersState = MutableStateFlow<FirebaseResult<List<Player>>>(FirebaseResult.Loading)
+    val playersState: StateFlow<FirebaseResult<List<Player>>> = _playersState
 
     private val _addPlayerState = MutableStateFlow<FirebaseResult<Unit>>(FirebaseResult.Loading)
-    val addTournamentState: StateFlow<FirebaseResult<Unit>> = _addPlayerState
+    val addPlayerState: StateFlow<FirebaseResult<Unit>> = _addPlayerState
+
+    private val _deletePlayerState = MutableStateFlow<FirebaseResult<Unit>>(FirebaseResult.Loading)
+    val deletePlayerState: StateFlow<FirebaseResult<Unit>> = _deletePlayerState
 
     fun addPlayer(player: Player) {
         viewModelScope.launch {
@@ -45,6 +47,14 @@ class PlayerViewModel: ViewModel() {
             _playersState.value = FirebaseResult.Loading
             val result = playerRepository.getPlayersById(id)
             _playersState.value = result
+        }
+    }
+
+    fun deletePlayer(playerId: String) {
+        viewModelScope.launch {
+            _deletePlayerState.value = FirebaseResult.Loading
+            val result = playerRepository.deletePlayer(playerId)
+            _deletePlayerState.value = result
         }
     }
 }

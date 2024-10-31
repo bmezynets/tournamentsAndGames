@@ -1,5 +1,6 @@
 package com.example.tournamentsandgames.ui.tournaments
 
+import android.R.attr.onClick
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -28,13 +30,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -43,6 +46,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -57,12 +61,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.tournamentsandgames.R
 import com.example.tournamentsandgames.data.model.Player
 import com.example.tournamentsandgames.data.model.Team
 import com.example.tournamentsandgames.data.model.Tournament
-import com.example.tournamentsandgames.ui.auth.AuthViewModel
 import com.example.tournamentsandgames.ui.home.Home
+import com.example.tournamentsandgames.ui.home.ui.theme.Purple40
 import com.example.tournamentsandgames.ui.home.ui.theme.colorMain
 import com.example.tournamentsandgames.ui.home.ui.theme.darkTint
 import com.example.tournamentsandgames.ui.home.ui.theme.primaryColor
@@ -70,6 +76,7 @@ import com.example.tournamentsandgames.ui.home.ui.theme.tintColor
 import com.example.tournamentsandgames.ui.tournaments.ui.theme.TournamentsAndGamesTheme
 import kotlinx.coroutines.delay
 import java.util.UUID
+
 
 class AddTeamActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,7 +105,16 @@ class AddTeamActivity : ComponentActivity() {
 fun AddTeamScreen(tournament: Tournament?) {
     val activity = LocalContext.current as? ComponentActivity
     var teamName by remember { mutableStateOf("") }
-    var teamsList by remember { mutableStateOf(tournament?.teams ?: mutableListOf()) }
+    var playerName by remember { mutableStateOf("") }
+    val teamsList = remember { mutableStateListOf<Team>() }
+    teamsList.addAll(tournament?.teams ?: listOf())
+
+    var showAddTeamDialog by remember { mutableStateOf(false) }
+    val playersList = remember { mutableStateListOf<String>() }
+
+    val tournamentViewModel = TournamentViewModel()
+    val playerViewModel = PlayerViewModel()
+    val teamViewModel = TeamViewModel()
 
     if (tournament == null) {
         Toast.makeText(activity, "Błąd w trakcie dodania drużyny! Spróbuj ponownie", Toast.LENGTH_SHORT).show()
@@ -151,79 +167,16 @@ fun AddTeamScreen(tournament: Tournament?) {
                 }
             }
 
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
+            // Open Add Team Dialog
+            Button(
+                onClick = { showAddTeamDialog = true },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.buttonColors(primaryColor)
             ) {
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = "Dodaj Drużynę",
-                        style = TextStyle(
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        ),
-                        color = Color.Black.copy(alpha = 0.6f)
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        TextField(
-                            value = teamName,
-                            onValueChange = { teamName = it },
-                            label = { Text("Nazwa drużyny") },
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = TextFieldDefaults.textFieldColors(
-                                containerColor = tintColor,
-                                unfocusedIndicatorColor = Color.Transparent,
-                                focusedIndicatorColor = Color.Transparent,
-                                textColor = Color.Black,
-                                disabledLabelColor = primaryColor,
-                                focusedLabelColor = primaryColor,
-                                unfocusedLabelColor = primaryColor,
-                            ),
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Add Button
-                    Button(
-                        onClick = {
-                            if (teamName.isNotEmpty()) {
-                                val newTeam = Team(
-                                    id = "",
-                                    _id = UUID.randomUUID().toString(),
-                                    name = teamName,
-                                    points = 0
-                                )
-                                teamsList.add(newTeam)
-                                teamName = ""
-                            } else {
-                                Toast.makeText(activity, "Musisz podać nazwę drużyny!", Toast.LENGTH_SHORT).show()
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.buttonColors(primaryColor)
-                    ) {
-                        Text("Dodaj")
-                    }
-                }
+                Text("Dodaj")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -232,10 +185,225 @@ fun AddTeamScreen(tournament: Tournament?) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(teamsList.count()) { team ->
-                    TeamCard1(team = teamsList[team]) {
-                        // Handle the team click event
-                        Toast.makeText(activity, "Clicked on ${teamsList[team].name}", Toast.LENGTH_SHORT).show()
+                items(teamsList.count()) { index ->
+                    TeamCard1(
+                        team = teamsList[index],
+                        onClick = {
+                            Toast.makeText(activity, "Clicked on ${teamsList[index].name}", Toast.LENGTH_SHORT).show()
+                        },
+                        onDelete = {
+                            teamsList.remove(teamsList[index])
+                        }
+                    )
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(14.dp)
+                        .clip(CircleShape)
+                        .border(2.dp, primaryColor, CircleShape)
+                )
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Box(
+                    modifier = Modifier
+                        .size(14.dp)
+                        .clip(CircleShape)
+                        .border(2.dp, primaryColor, CircleShape)
+                )
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Box(
+                    modifier = Modifier
+                        .size(14.dp)
+                        .clip(CircleShape)
+                        .background(primaryColor)
+                )
+
+                Spacer(modifier = Modifier.height(48.dp))
+            }
+        }
+    }
+
+    // Add Team Dialog
+    if (showAddTeamDialog) {
+        Dialog(
+            onDismissRequest = { showAddTeamDialog = false },
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false
+            )
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = "Dodaj drużynę",
+                        style = TextStyle(
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = Color.Black
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Team Name Input
+                    Text("Nazwa")
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    TextField(
+                        value = teamName,
+                        onValueChange = { teamName = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = TextFieldDefaults.textFieldColors(
+                            containerColor = tintColor,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent,
+                            textColor = Color.Black,
+                            disabledLabelColor = primaryColor,
+                            focusedLabelColor = primaryColor,
+                            unfocusedLabelColor = primaryColor,
+                        ),
+                        shape = RoundedCornerShape(10.dp),
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Player Name Input
+                    Text("Imię zawodnika")
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    TextField(
+                        value = playerName,
+                        onValueChange = { playerName = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = TextFieldDefaults.textFieldColors(
+                            containerColor = tintColor,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent,
+                            textColor = Color.Black,
+                            disabledLabelColor = primaryColor,
+                            focusedLabelColor = primaryColor,
+                            unfocusedLabelColor = primaryColor,
+                        ),
+                        shape = RoundedCornerShape(10.dp),
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Button to Add Player to List
+                    Button(
+                        onClick = {
+                            if (playerName.isNotEmpty()) {
+                                playersList.add(playerName)
+                                playerName = ""
+                            } else {
+                                Toast.makeText(activity, "Musisz podać imię!", Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(primaryColor)
+
+                    ) {
+                        Text("Dodaj zawodnika")
+                    }
+
+                    // List of Added Players
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)
+                            .heightIn(max = 200.dp)
+                    ) {
+                        items(playersList.size) { idx ->
+                            Text(
+                                text = playersList[idx],
+                                modifier = Modifier.padding(8.dp),
+                                style = TextStyle(fontSize = 16.sp)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Button to Save Team
+                    Button(
+                        onClick = {
+                            if (teamName.isNotEmpty() && playersList.isNotEmpty()) {
+                                val newTeam = Team(
+                                    id = "",
+                                    _id = UUID.randomUUID().toString(),
+                                    name = teamName,
+                                    points = 0,
+                                    players = playersList.map { Player(id = "", _id = UUID.randomUUID().toString(), name = it, surname = "", tournamentId = tournament!!._id) }
+                                )
+                                teamsList.add(newTeam)
+
+                                // Clear fields and close modal
+                                try {
+                                    val teamPlayers = mutableListOf<Player>()
+                                    val teamId = UUID.randomUUID().toString()
+
+                                    playersList.forEach {name ->
+                                        val nameFormatted = name.split(" ")
+
+                                        val player  = Player(
+                                            id = "",
+                                            _id = UUID.randomUUID().toString(),
+                                            name = nameFormatted[0] ,
+                                            surname = if (nameFormatted.size > 1) nameFormatted[1] else "",
+                                            tournamentId = tournament!!._id,
+                                            teamId = teamId
+                                        )
+
+                                        teamPlayers.add(player)
+                                        playerViewModel.addPlayer(player)
+                                    }
+
+                                    val team  = Team (
+                                        id = "",
+                                        _id = UUID.randomUUID().toString(),
+                                        name = teamName,
+                                        points = 0,
+                                        players = teamPlayers
+                                    )
+
+                                    teamViewModel.addTeam(team)
+                                } catch (e: Exception) {
+                                    Toast.makeText(activity, "Błąd w trakcie dodania drzużyny!", Toast.LENGTH_SHORT).show()
+                                    Log.e("ADD TEAM ERROR", e.message.toString())
+                                }
+
+                                teamName = ""
+                                playersList.clear()
+                                showAddTeamDialog = false
+                            } else {
+                                Toast.makeText(activity, "Lista zawodników nie może być pusta!", Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(colorMain)
+                    ) {
+                        Text("Zapisz Drużynę")
                     }
                 }
             }
@@ -243,8 +411,10 @@ fun AddTeamScreen(tournament: Tournament?) {
     }
 }
 
+// Existing TeamCard1 function
 @Composable
-fun TeamCard1(team: Team, onClick: () -> Unit) {
+fun TeamCard1(team: Team, onClick: () -> Unit,  onDelete: () -> Unit) {
+    val activity = LocalContext.current as? ComponentActivity
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -260,17 +430,52 @@ fun TeamCard1(team: Team, onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+
             Text(
                 text = team.name,
                 style = TextStyle(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
-                )
+                ),
+                modifier = Modifier
+                    .weight(9f)
+                    .padding(end = 8.dp)
             )
+
+            Box(
+                modifier = Modifier
+                    .weight(2f)
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Purple40)
+            ) {
+                IconButton(
+                    onClick = {
+                        val teamViewModel = TeamViewModel()
+                        try {
+                            teamViewModel.deleteTeam(team.id)
+                            onDelete()
+                            Toast.makeText(activity, "Pomyślnie usunięto zespół", Toast.LENGTH_SHORT).show()
+                        } catch (ex: Exception) {
+                            Toast.makeText(activity, "Błąd w trakcie usuwania. Spróbuj ponownie", Toast.LENGTH_SHORT).show()
+                            Log.e("DELETE TEAM ERROR", ex.message.toString())
+                        }
+                    },
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        contentDescription = "Delete",
+                        tint = Color.White
+                    )
+                }
+            }
+
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = "forward",
-                tint = colorMain
+                contentDescription = "Navigate",
+                tint = colorMain,
+                modifier = Modifier.weight(1f)
             )
         }
     }
