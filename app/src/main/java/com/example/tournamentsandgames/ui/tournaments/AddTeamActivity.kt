@@ -110,11 +110,13 @@ fun AddTeamScreen(tournament: Tournament?) {
     teamsList.addAll(tournament?.teams ?: listOf())
 
     var showAddTeamDialog by remember { mutableStateOf(false) }
+    var showTeamDialog by remember { mutableStateOf(false) }
     val playersList = remember { mutableStateListOf<String>() }
 
     val tournamentViewModel = TournamentViewModel()
     val playerViewModel = PlayerViewModel()
     val teamViewModel = TeamViewModel()
+    var clickedTeam = remember { mutableStateOf(Team()) }
 
     if (tournament == null) {
         Toast.makeText(activity, "Błąd w trakcie dodania drużyny! Spróbuj ponownie", Toast.LENGTH_SHORT).show()
@@ -189,7 +191,8 @@ fun AddTeamScreen(tournament: Tournament?) {
                     TeamCard1(
                         team = teamsList[index],
                         onClick = {
-                            Toast.makeText(activity, "Clicked on ${teamsList[index].name}", Toast.LENGTH_SHORT).show()
+                            clickedTeam.value = teamsList[index]
+                            showTeamDialog = true
                         },
                         onDelete = {
                             teamsList.remove(teamsList[index])
@@ -334,11 +337,13 @@ fun AddTeamScreen(tournament: Tournament?) {
                             .heightIn(max = 200.dp)
                     ) {
                         items(playersList.size) { idx ->
-                            Text(
-                                text = playersList[idx],
-                                modifier = Modifier.padding(8.dp),
-                                style = TextStyle(fontSize = 16.sp)
-                            )
+                            playersCard(
+                                player = playersList[idx],
+                                onDelete = {
+                                playersList.remove(
+                                    playersList[idx]
+                                )
+                            })
                         }
                     }
 
@@ -404,6 +409,126 @@ fun AddTeamScreen(tournament: Tournament?) {
                         colors = ButtonDefaults.buttonColors(colorMain)
                     ) {
                         Text("Zapisz Drużynę")
+                    }
+                }
+            }
+        }
+    }
+
+    // Show Team Dialog
+    if (showTeamDialog) {
+        Dialog(
+            onDismissRequest = { showTeamDialog = false },
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false
+            )
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 30.dp)
+                    .background(MaterialTheme.colorScheme.background)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .padding(16.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.group),
+                                contentDescription = "Group Picture",
+                                modifier = Modifier
+                                    .size(70.dp)
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Crop,
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = clickedTeam.value.name,
+                                style = MaterialTheme.typography.headlineSmall
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Display List of Teams (Cards)
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(clickedTeam.value.players.count()) { index ->
+                            showTeamPlayersCard(
+                                player = clickedTeam.value.players[index],
+                                onDelete = {
+                                    playerViewModel.deletePlayer(clickedTeam.value.players[index]._id)
+
+                                    val newTeamPlayers = clickedTeam.value.players.filter { it._id != clickedTeam.value.players[index]._id }
+
+                                    clickedTeam.value = clickedTeam.value.copy(players = newTeamPlayers)
+                                }
+                            )
+                        }
+                    }
+
+                    Button(
+                        onClick = { showTeamDialog = false },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(primaryColor)
+                    ) {
+                        Text("Zamknij")
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(14.dp)
+                                .clip(CircleShape)
+                                .border(2.dp, primaryColor, CircleShape)
+                        )
+
+                        Spacer(modifier = Modifier.width(16.dp))
+
+                        Box(
+                            modifier = Modifier
+                                .size(14.dp)
+                                .clip(CircleShape)
+                                .border(2.dp, primaryColor, CircleShape)
+                        )
+
+                        Spacer(modifier = Modifier.width(16.dp))
+
+                        Box(
+                            modifier = Modifier
+                                .size(14.dp)
+                                .clip(CircleShape)
+                                .background(primaryColor)
+                        )
+
+                        Spacer(modifier = Modifier.height(48.dp))
                     }
                 }
             }
@@ -477,6 +602,98 @@ fun TeamCard1(team: Team, onClick: () -> Unit,  onDelete: () -> Unit) {
                 tint = colorMain,
                 modifier = Modifier.weight(1f)
             )
+        }
+    }
+}
+
+@Composable
+fun playersCard(player: String, onDelete: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 3.dp),
+        elevation = CardDefaults.cardElevation(1.dp),
+        colors = CardDefaults.cardColors(containerColor = darkTint.copy(alpha = 0.8f))
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+
+            Text(
+                text = player,
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                modifier = Modifier
+                    .weight(10f)
+                    .padding(end = 8.dp)
+            )
+
+            IconButton(
+                onClick = {
+                    onDelete()
+                },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(2f)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = "Delete",
+                    tint = Purple40
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun showTeamPlayersCard(player: Player, onDelete: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 3.dp),
+        elevation = CardDefaults.cardElevation(1.dp),
+        colors = CardDefaults.cardColors(containerColor = darkTint.copy(alpha = 0.8f))
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+
+            Text(
+                text = "${player.name} ${player.surname}",
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                modifier = Modifier
+                    .weight(10f)
+                    .padding(end = 8.dp)
+            )
+
+            IconButton(
+                onClick = {
+                    onDelete()
+                },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(2f)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = "Delete",
+                    tint = Purple40
+                )
+            }
         }
     }
 }

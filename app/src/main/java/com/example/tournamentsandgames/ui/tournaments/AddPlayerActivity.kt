@@ -89,12 +89,9 @@ class AddPlayerActivity : ComponentActivity() {
 @Composable
 fun Step2(tournament: Tournament?) {
     val activity = LocalContext.current as? ComponentActivity
-    val playerViewModel = PlayerViewModel()
 
     var firstPlayerName by remember { mutableStateOf("") }
     var firstPlayerSurname by remember { mutableStateOf("") }
-    var secondPlayerName by remember { mutableStateOf("") }
-    var secondPlayerSurname by remember { mutableStateOf("") }
 
     if(tournament === null) {
         Toast.makeText(activity, "Błąd w trakcie dodania gracza! Spróbuj ponownie", Toast.LENGTH_SHORT).show()

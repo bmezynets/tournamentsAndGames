@@ -223,28 +223,6 @@ fun HomeScreen() {
                     is FirebaseResult.Success -> {
                         val tournaments = result.data
                         if (tournaments.isNotEmpty()) {
-                            /*LazyColumn {
-                                items(tournaments) { tournament ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(8.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(
-                                            text = tournament.name,
-                                            style = MaterialTheme.typography.bodyLarge,
-                                            modifier = Modifier.weight(0.5f)
-                                        )
-                                        Text(
-                                            text = "Rundy: ${tournament.rounds}",
-                                            style = MaterialTheme.typography.bodyLarge,
-                                            modifier = Modifier.weight(0.3f),
-                                            textAlign = TextAlign.End
-                                        )
-                                    }
-                                }
-                            }*/
                             LazyColumn {
                                 items(tournaments) { tournament ->
                                     HomeCard(tournament = tournament) {

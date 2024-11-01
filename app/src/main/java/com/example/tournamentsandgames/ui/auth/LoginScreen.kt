@@ -30,6 +30,7 @@ fun LoginScreen() {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showModal by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -86,13 +87,32 @@ fun LoginScreen() {
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Button to Trigger Login
-        Button(
-            onClick = { viewModel.login(email, password) },
-            shape = RoundedCornerShape(10.dp),
-            colors = ButtonDefaults.buttonColors(primaryColor)
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth() // Ensures the Column takes up full width
         ) {
-            Text("Login")
+            // Login Button
+            Button(
+                onClick = { viewModel.login(email, password) },
+                shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.buttonColors(primaryColor),
+                modifier = Modifier.width(280.dp)
+            ) {
+                Text("Zaloguj")
+            }
+
+            // Register Button
+            Button(
+                onClick = {
+                    context.startActivity(Intent(context, RegistrationActivity::class.java))
+                },
+                shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.buttonColors(colorMain),
+                modifier = Modifier.width(280.dp)
+            ) {
+                Text("Rejestracja")
+            }
         }
 
         if (showModal) {

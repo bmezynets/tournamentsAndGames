@@ -19,7 +19,7 @@ class UserRepository {
             val user = User(uid, email)
             database.child(uid).setValue(user).await()
         } catch (e: Exception) {
-            throw e // Rethrow the exception for handling elsewhere
+            throw e
         }
     }
 
