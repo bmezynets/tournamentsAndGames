@@ -74,6 +74,7 @@ import com.example.tournamentsandgames.ui.profile.EditPersonalData
 import com.example.tournamentsandgames.ui.theme.Pink80
 import com.example.tournamentsandgames.ui.tournaments.AddTournamentActivity
 import com.example.tournamentsandgames.ui.tournaments.TeamCard
+import com.example.tournamentsandgames.ui.tournaments.TournamentDescriptionActivity
 import com.example.tournamentsandgames.ui.tournaments.TournamentViewModel
 
 class Home : ComponentActivity() {
@@ -226,8 +227,10 @@ fun HomeScreen() {
                             LazyColumn {
                                 items(tournaments) { tournament ->
                                     HomeCard(tournament = tournament) {
-                                        // Handle onClick for the team card here
-                                        Toast.makeText(activity, "Clicked on ${tournament.name}", Toast.LENGTH_SHORT).show()
+                                        val intent = Intent(context, TournamentDescriptionActivity::class.java)
+                                        intent.putExtra("tournamentId", tournament._id)
+                                        intent.putExtra("tournament", tournament)
+                                        context.startActivity(intent)
                                     }
                                 }
                             }

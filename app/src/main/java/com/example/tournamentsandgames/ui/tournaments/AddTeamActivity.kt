@@ -1,6 +1,5 @@
 package com.example.tournamentsandgames.ui.tournaments
 
-import android.R.attr.onClick
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -81,7 +80,7 @@ import java.util.UUID
 class AddTeamActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val tournament = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val tournamentRaw = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableExtra("tournament", Tournament::class.java) as Tournament
         } else {
             @Suppress("DEPRECATION")
@@ -93,7 +92,7 @@ class AddTeamActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AddTeamScreen(tournament)
+                    AddTeamScreen(tournamentRaw)
                 }
             }
         }
@@ -102,7 +101,8 @@ class AddTeamActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddTeamScreen(tournament: Tournament?) {
+fun AddTeamScreen(tournamentRaw: Tournament?) {
+    var tournament = tournamentRaw
     val activity = LocalContext.current as? ComponentActivity
     var teamName by remember { mutableStateOf("") }
     var playerName by remember { mutableStateOf("") }
@@ -116,7 +116,8 @@ fun AddTeamScreen(tournament: Tournament?) {
     val tournamentViewModel = TournamentViewModel()
     val playerViewModel = PlayerViewModel()
     val teamViewModel = TeamViewModel()
-    var clickedTeam = remember { mutableStateOf(Team()) }
+    val clickedTeam = remember { mutableStateOf(Team()) }
+    val context = LocalContext.current
 
     if (tournament == null) {
         Toast.makeText(activity, "Błąd w trakcie dodania drużyny! Spróbuj ponownie", Toast.LENGTH_SHORT).show()
@@ -136,102 +137,104 @@ fun AddTeamScreen(tournament: Tournament?) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
-            verticalArrangement = Arrangement.Top,
+            verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Card(
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                    .weight(1f),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(16.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.trophy),
+                            contentDescription = "Tournament Picture",
+                            modifier = Modifier
+                                .size(70.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop,
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "${tournament?.name}",
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                    }
+                }
+
+                // Open Add Team Dialog
+                Button(
+                    onClick = { showAddTeamDialog = true },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(primaryColor)
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.trophy),
-                        contentDescription = "Tournament Picture",
-                        modifier = Modifier
-                            .size(70.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop,
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = "${tournament?.name}",
-                        style = MaterialTheme.typography.headlineSmall
-                    )
+                    Text("Dodaj")
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Display List of Teams (Cards)
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 300.dp)
+                ) {
+                    items(teamsList.count()) { index ->
+                        TeamCard1(
+                            team = teamsList[index],
+                            onClick = {
+                                clickedTeam.value = teamsList[index]
+                                showTeamDialog = true
+                            },
+                            onDelete = {
+                                teamsList.remove(teamsList[index])
+                            }
+                        )
+                    }
                 }
             }
 
-            // Open Add Team Dialog
+            Spacer(modifier = Modifier.height(16.dp))
+
             Button(
-                onClick = { showAddTeamDialog = true },
+                onClick = {
+                    if(teamsList.size == 1) {
+                        Toast.makeText(activity, "W turnieju muśi być więcej niż 1 zespół!", Toast.LENGTH_SHORT).show()
+                    } else if (teamsList.isEmpty()) {
+                        Toast.makeText(activity, "Nie zostało podano zespołów! Podaj uczęstników i przejdź dalej.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        tournament!!.teams = teamsList
+                        tournamentViewModel.addTournament(tournament)
+                        Toast.makeText(activity, "Pomyślno zapisano turniej!", Toast.LENGTH_SHORT).show()
+                        context.startActivity(Intent(activity, Home::class.java))
+                        activity!!.finish()
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(primaryColor)
             ) {
-                Text("Dodaj")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Display List of Teams (Cards)
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(teamsList.count()) { index ->
-                    TeamCard1(
-                        team = teamsList[index],
-                        onClick = {
-                            clickedTeam.value = teamsList[index]
-                            showTeamDialog = true
-                        },
-                        onDelete = {
-                            teamsList.remove(teamsList[index])
-                        }
-                    )
-                }
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(14.dp)
-                        .clip(CircleShape)
-                        .border(2.dp, primaryColor, CircleShape)
-                )
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Box(
-                    modifier = Modifier
-                        .size(14.dp)
-                        .clip(CircleShape)
-                        .border(2.dp, primaryColor, CircleShape)
-                )
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Box(
-                    modifier = Modifier
-                        .size(14.dp)
-                        .clip(CircleShape)
-                        .background(primaryColor)
-                )
-
-                Spacer(modifier = Modifier.height(48.dp))
+                Text("Dalej")
             }
         }
     }
@@ -337,7 +340,7 @@ fun AddTeamScreen(tournament: Tournament?) {
                             .heightIn(max = 200.dp)
                     ) {
                         items(playersList.size) { idx ->
-                            playersCard(
+                            PlayersCard(
                                 player = playersList[idx],
                                 onDelete = {
                                 playersList.remove(
@@ -433,7 +436,7 @@ fun AddTeamScreen(tournament: Tournament?) {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(16.dp),
-                    verticalArrangement = Arrangement.Top,
+                    verticalArrangement = Arrangement.SpaceBetween,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Card(
@@ -469,33 +472,34 @@ fun AddTeamScreen(tournament: Tournament?) {
                     Spacer(modifier = Modifier.height(16.dp))
 
                     // Display List of Teams (Cards)
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(clickedTeam.value.players.count()) { index ->
-                            showTeamPlayersCard(
-                                player = clickedTeam.value.players[index],
-                                onDelete = {
-                                    playerViewModel.deletePlayer(clickedTeam.value.players[index]._id)
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 3.dp),
+                        elevation = CardDefaults.cardElevation(1.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White)
+                    ){
+                        LazyColumn(
+                            modifier = Modifier
+                                .height(200.dp)
+                                .fillMaxWidth()
+                        ) {
+                            items(clickedTeam.value.players.count()) { index ->
+                                ShowTeamPlayersCard(
+                                    player = clickedTeam.value.players[index],
+                                    onDelete = {
+                                        playerViewModel.deletePlayer(clickedTeam.value.players[index]._id)
 
-                                    val newTeamPlayers = clickedTeam.value.players.filter { it._id != clickedTeam.value.players[index]._id }
+                                        val newTeamPlayers = clickedTeam.value.players.filter { it._id != clickedTeam.value.players[index]._id }
 
-                                    clickedTeam.value = clickedTeam.value.copy(players = newTeamPlayers)
-                                }
-                            )
+                                        clickedTeam.value = clickedTeam.value.copy(players = newTeamPlayers)
+                                    }
+                                )
+                            }
                         }
                     }
 
-                    Button(
-                        onClick = { showTeamDialog = false },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.buttonColors(primaryColor)
-                    ) {
-                        Text("Zamknij")
-                    }
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     Row(
                         modifier = Modifier
@@ -503,32 +507,16 @@ fun AddTeamScreen(tournament: Tournament?) {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        Box(
+                        Button(
+                            onClick = { showTeamDialog = false },
                             modifier = Modifier
-                                .size(14.dp)
-                                .clip(CircleShape)
-                                .border(2.dp, primaryColor, CircleShape)
-                        )
-
-                        Spacer(modifier = Modifier.width(16.dp))
-
-                        Box(
-                            modifier = Modifier
-                                .size(14.dp)
-                                .clip(CircleShape)
-                                .border(2.dp, primaryColor, CircleShape)
-                        )
-
-                        Spacer(modifier = Modifier.width(16.dp))
-
-                        Box(
-                            modifier = Modifier
-                                .size(14.dp)
-                                .clip(CircleShape)
-                                .background(primaryColor)
-                        )
-
-                        Spacer(modifier = Modifier.height(48.dp))
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(primaryColor)
+                        ) {
+                            Text("Zamknij")
+                        }
                     }
                 }
             }
@@ -607,7 +595,7 @@ fun TeamCard1(team: Team, onClick: () -> Unit,  onDelete: () -> Unit) {
 }
 
 @Composable
-fun playersCard(player: String, onDelete: () -> Unit) {
+fun PlayersCard(player: String, onDelete: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -653,7 +641,7 @@ fun playersCard(player: String, onDelete: () -> Unit) {
 }
 
 @Composable
-fun showTeamPlayersCard(player: Player, onDelete: () -> Unit) {
+fun ShowTeamPlayersCard(player: Player, onDelete: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()

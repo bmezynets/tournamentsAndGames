@@ -57,4 +57,17 @@ class TeamRepository {
             FirebaseResult.Error(e)
         }
     }
+
+    suspend fun updateTeamScore(teamId: String, newScore: Int): FirebaseResult<String> {
+        return try {
+            database.orderByChild("_id").equalTo(teamId).get().await().children.forEach { teamSnapshot ->
+                teamSnapshot.child("points").ref.setValue(newScore).await()
+            }
+            val tournamentId = database.orderByChild("_id").equalTo(teamId).get().await().children
+                .firstOrNull()?.child("tournamentId")?.getValue(String::class.java) ?: ""
+            FirebaseResult.Success(tournamentId)
+        } catch (e: Exception) {
+            FirebaseResult.Error(e)
+        }
+    }
 }

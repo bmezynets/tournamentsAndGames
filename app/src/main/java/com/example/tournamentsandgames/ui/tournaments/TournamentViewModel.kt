@@ -7,6 +7,7 @@ import com.example.tournamentsandgames.data.repository.FirebaseResult
 import com.example.tournamentsandgames.data.repository.TournamentRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class TournamentViewModel : ViewModel() {
@@ -19,6 +20,12 @@ class TournamentViewModel : ViewModel() {
     // State for adding a tournament
     private val _addTournamentState = MutableStateFlow<FirebaseResult<Unit>>(FirebaseResult.Loading)
     val addTournamentState: StateFlow<FirebaseResult<Unit>> = _addTournamentState
+
+    private val _getTournamentByIdState = MutableStateFlow<FirebaseResult<List<Tournament>>>(FirebaseResult.Loading)
+    val getTournamentByIdState: StateFlow<FirebaseResult<List<Tournament>>> = _getTournamentByIdState
+
+    private val _state: MutableStateFlow<Tournament?> = MutableStateFlow(null)
+    val state: StateFlow<Tournament?> = _state.asStateFlow()
 
     fun addTournament(tournament: Tournament) {
         viewModelScope.launch {
@@ -43,9 +50,10 @@ class TournamentViewModel : ViewModel() {
 
     fun getTournamentsById(id: String) {
         viewModelScope.launch {
-            _tournamentsState.value = FirebaseResult.Loading
+            _getTournamentByIdState.value = FirebaseResult.Loading
             val result = tournamentRepository.getTournamentsById(id)
-            _tournamentsState.value = result
+            _getTournamentByIdState.value = result
+            Log.d("RESULT:", result.toString())
         }
     }
 }

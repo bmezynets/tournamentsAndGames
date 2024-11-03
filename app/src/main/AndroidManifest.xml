@@ -13,6 +13,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TournamentsAndGames">
         <activity
+            android:name=".ui.tournaments.TournamentDescriptionActivity"
+            android:exported="false"
+            android:label="@string/title_activity_tournament_description"
+            android:theme="@style/Theme.TournamentsAndGames" />
+        <activity
             android:name=".ui.auth.RegistrationActivity"
             android:exported="false"
             android:label="@string/title_activity_registration"

@@ -45,8 +45,8 @@ class TournamentRepository {
     suspend fun getTournamentsById(id: String): FirebaseResult<List<Tournament>> {
         return try {
             val snapshot = database.orderByChild("_id").equalTo(id).get().await()
-            val tournamentList = snapshot.children.mapNotNull { it.getValue(Tournament::class.java) }
-            FirebaseResult.Success(tournamentList)
+            val tournaments = snapshot.children.mapNotNull { it.getValue(Tournament::class.java) }
+            FirebaseResult.Success(tournaments)
         } catch (e: Exception) {
             FirebaseResult.Error(e)
         }

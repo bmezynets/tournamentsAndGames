@@ -20,6 +20,7 @@ class TeamViewModel: ViewModel() {
 
     private val _deleteTeamState = MutableStateFlow<FirebaseResult<Unit>>(FirebaseResult.Loading)
     val deleteTeamState: StateFlow<FirebaseResult<Unit>> = _deleteTeamState
+
     fun addTeam(team: Team) {
         viewModelScope.launch {
             val result = teamRepository.addTeam(team)
@@ -27,13 +28,13 @@ class TeamViewModel: ViewModel() {
         }
     }
 
-    fun getPlayers() {
+    fun getTeams() {
         viewModelScope.launch {
             _teamsState.value = teamRepository.getTeams()
         }
     }
 
-    fun getPlayerByTournamentId(tournamentId: String) {
+    fun getTeamByTournamentId(tournamentId: String) {
         viewModelScope.launch {
             _teamsState.value = FirebaseResult.Loading
             val result = teamRepository.getTeamByTournamentId(tournamentId)
@@ -41,7 +42,7 @@ class TeamViewModel: ViewModel() {
         }
     }
 
-    fun getPlayersById(id: String) {
+    fun getTeamsById(id: String) {
         viewModelScope.launch {
             _teamsState.value = FirebaseResult.Loading
             val result = teamRepository.getTeamsById(id)
@@ -54,6 +55,18 @@ class TeamViewModel: ViewModel() {
             _deleteTeamState.value = FirebaseResult.Loading
             val result = teamRepository.deleteTeam(teamId)
             _deleteTeamState.value = result
+        }
+    }
+
+    // Function to update team score in the database
+    fun updateTeamScore(teamId: String, newScore: Int) {
+        viewModelScope.launch {
+            val result = teamRepository.updateTeamScore(teamId, newScore)
+
+            if (result is FirebaseResult.Success) {
+                val tournamentId = result.data
+                getTeamByTournamentId(tournamentId)
+            }
         }
     }
 }

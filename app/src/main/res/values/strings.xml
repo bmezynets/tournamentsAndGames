@@ -9,4 +9,5 @@
     <string name="title_activity_add_second_player">AddSecondPlayerActivity</string>
     <string name="title_activity_create_tournament_summary">CreateTournamentSummaryActivity</string>
     <string name="title_activity_registration">RegistrationActivity</string>
+    <string name="title_activity_tournament_description">TournamentDescriptionActivity</string>
 </resources>
