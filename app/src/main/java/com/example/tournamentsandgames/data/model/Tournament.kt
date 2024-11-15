@@ -11,5 +11,6 @@ data class Tournament(
     var teams: MutableList<Team> = mutableListOf<Team>(),
     val rounds: Int = 0,
     val matches: List<Match> = listOf(),
-    val createdBy: String = ""
+    val createdBy: String = "",
+    var ended: Boolean? = null
 ) : Parcelable

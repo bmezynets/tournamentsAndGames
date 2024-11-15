@@ -6,8 +6,19 @@ import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.tasks.await
+import javax.inject.Singleton
 
-class TournamentRepository {
+class TournamentRepository private constructor() {
+    companion object {
+        @Volatile
+        private var instance: TournamentRepository? = null
+
+        fun getInstance() =
+            instance ?: synchronized(this) {
+                instance ?: TournamentRepository().also { instance = it }
+            }
+    }
+
     private val database = FirebaseDatabase.getInstance().getReference("tournaments")
 
     suspend fun addTournament(tournament: Tournament): FirebaseResult<Unit> {
@@ -51,4 +62,5 @@ class TournamentRepository {
             FirebaseResult.Error(e)
         }
     }
+
 }

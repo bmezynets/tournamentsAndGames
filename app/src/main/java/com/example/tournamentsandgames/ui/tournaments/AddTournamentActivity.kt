@@ -229,12 +229,11 @@ fun AddTournamentScreen() {
                             _id = UUID.randomUUID().toString(),
                             name = tournamentName,
                             rounds = numberOfRounds.toIntOrNull() ?: 0,
-                            createdBy = currentUser!!.uid
+                            createdBy = currentUser!!.uid,
+                            ended = false
                         )
 
                         try {
-                            /*tournamentViewModel.addTournament(tournament)
-                        activity!!.startActivity(Intent(activity, Home::class.java))*/
                             if (isTeamTournament) {
                                 val intent = Intent(
                                     activity,

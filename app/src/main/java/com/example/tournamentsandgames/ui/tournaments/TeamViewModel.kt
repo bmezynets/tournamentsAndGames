@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class TeamViewModel: ViewModel() {
-    private val teamRepository = TeamRepository()
+    private val teamRepository = TeamRepository.getInstance()
 
     private val _teamsState = MutableStateFlow<FirebaseResult<List<Team>>>(FirebaseResult.Loading)
     val teamsState: StateFlow<FirebaseResult<List<Team>>> = _teamsState

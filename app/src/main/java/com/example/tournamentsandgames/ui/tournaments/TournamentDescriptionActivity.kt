@@ -51,6 +51,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tournamentsandgames.R
 import com.example.tournamentsandgames.data.model.Team
 import com.example.tournamentsandgames.data.model.Tournament
@@ -77,7 +78,7 @@ class TournamentDescriptionActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    ShowDescription(tournamentId, tournament)
+                    ShowDescription(tournamentId)
                 }
             }
         }
@@ -85,45 +86,61 @@ class TournamentDescriptionActivity : ComponentActivity() {
 }
 
 @Composable
-fun ShowDescription(tournamentId: String, _tournament: Tournament?) {
-    val tournamentViewModel = TournamentViewModel()
-    val teamViewModel = TeamViewModel()
-
-    LaunchedEffect(tournamentId) {
-        tournamentViewModel.getTournamentsById(tournamentId)
-        teamViewModel.getTeamByTournamentId(tournamentId)
-        tournamentViewModel.getTournamentsByUserId(_tournament!!.createdBy)
-    }
+fun ShowDescription(tournamentId: String) {
+    val tournamentViewModel: TournamentViewModel = viewModel()
+    val teamViewModel: TeamViewModel = viewModel()
 
     val tournamentState by tournamentViewModel.getTournamentByIdState.collectAsState()
     val teamsState by teamViewModel.teamsState.collectAsState()
 
-    if(_tournament !== null) {
-        DisplayTournamentDetails(_tournament, teamsState, tournamentViewModel, teamViewModel)
-    }else {
+    LaunchedEffect(tournamentId) {
+        tournamentViewModel.getTournamentsById(tournamentId)
+        teamViewModel.getTeamByTournamentId(tournamentId)
+    }
 
-        when (val tournamentResult = tournamentState) {
-            is FirebaseResult.Loading -> {
-                CircularProgressIndicator()
-            }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 30.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+                when (val tournamentResult = tournamentState) {
+                    is FirebaseResult.Loading -> {
+                        CircularProgressIndicator()
+                    }
 
-            is FirebaseResult.Success -> {
-                val tournaments = tournamentResult.data
-                if (tournaments.isNotEmpty()) {
-                    val tournament = tournaments[0]
-                    DisplayTournamentDetails(
-                        tournament,
-                        teamsState,
-                        tournamentViewModel,
-                        teamViewModel
-                    )
-                } else {
-                    Text("Nie masz jeszcze turniejów.")
+                    is FirebaseResult.Success -> {
+                        val tournaments = tournamentResult.data
+                        if (tournaments.isNotEmpty()) {
+                            val tournament = tournaments[0]
+                            DisplayTournamentDetails(
+                                tournament,
+                                teamsState,
+                                tournamentViewModel,
+                                teamViewModel
+                            )
+                        } else {
+                            Text("Nie masz jeszcze turniejów.")
+                        }
+                    }
+
+                    is FirebaseResult.Error -> {
+                        Text("Błąd: ${tournamentResult.exception.message}")
+                    }
                 }
-            }
-
-            is FirebaseResult.Error -> {
-                Text("Błąd: ${tournamentResult.exception.message}")
             }
         }
     }
@@ -218,37 +235,11 @@ fun DisplayTournamentDetails(
                         }
                     }
                 }
-                /*when (teamsState) {
-                    is FirebaseResult.Loading -> {
-                        CircularProgressIndicator()
-                    }
-                    is FirebaseResult.Success -> {
-                        val teams = teamsState.data
-                        if (teams.isNotEmpty()) {
-                            LazyColumn {
-                                items(teams) { team ->
-                                    TeamCardWithScoreInput(
-                                        team = team,
-                                        isGameStarted = isGameStarted,
-                                        onScoreChange = { newScore ->
-                                            teamViewModel.updateTeamScore(team.id, newScore)
-                                        }
-                                    )
-                                }
-                            }
-                        } else {
-                            Text("Brak drużyn w turnieju.")
-                        }
-                    }
-                    is FirebaseResult.Error -> {
-                        Text("Błąd: ${teamsState.exception.message}")
-                    }
-                }*/
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(
+            /*Button(
                 onClick = { isGameEnded = true },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -257,7 +248,7 @@ fun DisplayTournamentDetails(
                 colors = ButtonDefaults.buttonColors(primaryColor)
             ) {
                 Text("Zakończ turniej")
-            }
+            }*/
         }
     }
 }

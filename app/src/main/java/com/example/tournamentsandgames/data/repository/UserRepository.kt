@@ -7,7 +7,16 @@ import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.tasks.await
 
-class UserRepository {
+class UserRepository private constructor() {
+    companion object {
+        @Volatile
+        private var instance: UserRepository? = null
+
+        fun getInstance() =
+            instance ?: synchronized(this) {
+                instance ?: UserRepository().also { instance = it }
+            }
+    }
 
     // Initialize FirebaseAuth and FirebaseDatabase instances
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()

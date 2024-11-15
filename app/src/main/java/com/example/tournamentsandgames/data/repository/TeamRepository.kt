@@ -4,7 +4,16 @@ import com.example.tournamentsandgames.data.model.Team
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.tasks.await
 
-class TeamRepository {
+class TeamRepository private constructor() {
+    companion object {
+        @Volatile
+        private var instance: TeamRepository? = null
+
+        fun getInstance() =
+            instance ?: synchronized(this) {
+                instance ?: TeamRepository().also { instance = it }
+            }
+    }
     private val database = FirebaseDatabase.getInstance().getReference("teams")
 
     suspend fun addTeam(team: Team): FirebaseResult<Unit> {

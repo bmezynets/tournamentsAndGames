@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class PlayerViewModel: ViewModel() {
-    private val playerRepository = PlayerRepository()
+    private val playerRepository = PlayerRepository.getInstance()
 
     private val _playersState = MutableStateFlow<FirebaseResult<List<Player>>>(FirebaseResult.Loading)
     val playersState: StateFlow<FirebaseResult<List<Player>>> = _playersState

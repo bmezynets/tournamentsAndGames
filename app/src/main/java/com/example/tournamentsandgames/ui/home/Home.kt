@@ -8,8 +8,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,17 +27,25 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialogDefaults.shape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,6 +53,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -86,9 +97,139 @@ class Home : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    HomeScreen()
+                    MainScreen()
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainScreen() {
+    val tabs = listOf("Home", "Tournaments", "Profile")
+    var selectedTabIndex by remember { mutableStateOf(0) }
+
+    Scaffold(
+        bottomBar = {
+            TabRow(
+                selectedTabIndex = selectedTabIndex,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = Color.White
+            ) {
+                tabs.forEachIndexed { index, tab ->
+                    Tab(
+                        selected = selectedTabIndex == index,
+                        onClick = { selectedTabIndex = index },
+                        text = { Text(tab) },
+                        icon = {
+                            when (index) {
+                                0 -> Icon(Icons.Default.Home, contentDescription = "Start")
+                                1 -> Icon(Icons.Filled.Star, contentDescription = "Turnieje")
+                                2 -> Icon(Icons.Default.Person, contentDescription = "Profil")
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    ) { paddingValues ->
+        Box(modifier = Modifier.padding(paddingValues)) {
+            when (selectedTabIndex) {
+                0 -> HomeContent()
+                1 -> TournamentsContent()
+                2 -> ProfileContent()
+            }
+        }
+    }
+}
+
+@Composable
+fun HomeContent() {
+    HomeScreen()
+}
+
+@Composable
+fun TournamentsContent() {
+    val tournamentViewModel = TournamentViewModel()
+    val tournamentsState by tournamentViewModel.tournamentsState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        tournamentViewModel.getTournaments()
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Tournieje",
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(8.dp)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        when (val result = tournamentsState) {
+            is FirebaseResult.Loading -> CircularProgressIndicator()
+            is FirebaseResult.Success -> {
+                val tournaments = result.data
+                if (tournaments.isNotEmpty()) {
+                    LazyColumn {
+                        items(tournaments) { tournament ->
+                            HomeCard(tournament = tournament) {
+                                // Handle Tournament Click
+                            }
+                        }
+                    }
+                } else {
+                    Text("No Tournaments Found")
+                }
+            }
+            is FirebaseResult.Error -> {
+                Text("Error: ${result.exception.message}")
+            }
+        }
+    }
+}
+
+@Composable
+fun ProfileContent() {
+    val authViewModel = AuthViewModel()
+    val currentUser = authViewModel.getCurrentUser()
+    val context = LocalContext.current
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (currentUser != null) {
+            Image(
+                painter = painterResource(id = R.drawable.user),
+                contentDescription = "Profile Picture",
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = "Name: ${currentUser.displayName}")
+            Text(text = "Email: ${currentUser.email}")
+        } else {
+            Text("No User Data Available")
+        }
+
+        Button(
+            onClick = {
+                context.startActivity(Intent(context, EditPersonalData::class.java))
+            },
+            modifier = Modifier.padding(top = 16.dp)
+        ) {
+            Text("Edit Profile")
         }
     }
 }
@@ -104,11 +245,10 @@ fun HomeScreen() {
 
     val tournamentsState by tournamentViewModel.tournamentsState.collectAsState()
 
-    // Pobierz listę turniejów
     LaunchedEffect(Unit) {
-        if(currentUser != null) {
+        if (currentUser != null) {
             tournamentViewModel.getTournamentsByUserId(currentUser.uid)
-        }else {
+        } else {
             tournamentViewModel.getTournaments()
         }
     }
@@ -118,7 +258,6 @@ fun HomeScreen() {
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Karta dla użytkownika
         if (isLogged && !currentUser?.displayName.isNullOrEmpty()) {
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -176,7 +315,6 @@ fun HomeScreen() {
             }
         }
 
-        // Nowa karta dla turniejów
         Spacer(modifier = Modifier.height(16.dp))
 
         Card(
@@ -216,7 +354,6 @@ fun HomeScreen() {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Handling tournamentsState
                 when (val result = tournamentsState) {
                     is FirebaseResult.Loading -> {
                         CircularProgressIndicator()
@@ -258,12 +395,17 @@ fun HomeCard(tournament: Tournament, onClick: () -> Unit) {
         colors = CardDefaults.cardColors(containerColor = darkTint.copy(alpha = 0.8f))
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .background(darkTint.copy(alpha = 0.8f))
+                .padding(16.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp),
+                    .background(darkTint.copy(alpha = 0.8f)),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
@@ -283,7 +425,7 @@ fun HomeCard(tournament: Tournament, onClick: () -> Unit) {
                     color = Color.Black.copy(alpha = 0.7f)
                 )
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    imageVector = Icons.Default.KeyboardArrowRight,
                     contentDescription = "forward",
                     tint = colorMain
                 )

@@ -1,6 +1,7 @@
 package com.example.tournamentsandgames.ui.auth
 
 import android.content.Intent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -9,11 +10,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.tournamentsandgames.R
 import com.example.tournamentsandgames.data.repository.FirebaseResult
 import com.example.tournamentsandgames.ui.home.Home
 import com.example.tournamentsandgames.ui.home.HomeScreen
@@ -35,9 +38,17 @@ fun LoginScreen() {
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.logo_turniej_app),
+            contentDescription = "App Logo",
+            modifier = Modifier
+                .size(200.dp)
+                .padding(bottom = 64.dp)
+        )
+
         Text(
             text = "Logowanie",
             style = TextStyle(

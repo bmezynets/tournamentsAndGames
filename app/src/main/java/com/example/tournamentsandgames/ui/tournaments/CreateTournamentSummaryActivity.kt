@@ -105,8 +105,6 @@ fun Step3(tournament: Tournament?) {
         }
     }
 
-    val currentUser = AuthViewModel().getCurrentUser()
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -172,7 +170,6 @@ fun Step3(tournament: Tournament?) {
             LazyColumn {
                 items(tournament!!.teams.count()) { team ->
                     TeamCard(team = tournament.teams[team]) {
-                        // Handle onClick for the team card here
                         Toast.makeText(activity, "Clicked on ${tournament.teams[team].name}", Toast.LENGTH_SHORT).show()
                     }
                 }
@@ -189,6 +186,7 @@ fun Step3(tournament: Tournament?) {
                                 playerViewModel.addPlayer(player)
                             }
                         }
+                        tournament.ended = false
 
                         tournamentViewModel.addTournament(tournament)
                         activity?.startActivity(Intent(activity, Home::class.java))
