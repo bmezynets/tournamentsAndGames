@@ -1,10 +1,9 @@
 package com.example.tournamentsandgames.ui.tournaments
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -23,7 +21,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -31,14 +28,12 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -49,18 +44,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tournamentsandgames.R
 import com.example.tournamentsandgames.data.model.Team
 import com.example.tournamentsandgames.data.model.Tournament
 import com.example.tournamentsandgames.data.repository.FirebaseResult
-import com.example.tournamentsandgames.ui.home.Home
-import com.example.tournamentsandgames.ui.home.HomeCard
 import com.example.tournamentsandgames.ui.home.ui.theme.primaryColor
+import com.example.tournamentsandgames.ui.tournamentProcess.TournamentsProcessActivity
 import com.example.tournamentsandgames.ui.tournaments.ui.theme.TournamentsAndGamesTheme
-import kotlinx.coroutines.delay
 
 class TournamentDescriptionActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -153,10 +145,8 @@ fun DisplayTournamentDetails(
     tournamentViewModel: TournamentViewModel,
     teamViewModel: TeamViewModel
 ) {
-    val context = LocalContext.current
-    var startGameText by remember { mutableStateOf("Rozpocznij grę") }
-    var isGameStarted by remember { mutableStateOf(tournament.matches.isNotEmpty()) }
-    var isGameEnded by remember { mutableStateOf(tournament.matches.size >= tournament.rounds) }
+    val context = LocalContext.current as Activity
+    var isGameEnded by remember { mutableStateOf(tournament.ended) }
 
     Box(
         modifier = Modifier
@@ -209,14 +199,17 @@ fun DisplayTournamentDetails(
 
                 if (!isGameEnded) {
                     Button(
-                        onClick = { isGameStarted = !isGameStarted },
+                        onClick = {
+                            val intent = Intent(context, TournamentsProcessActivity::class.java).putExtra("tournamentId", tournament._id)
+                            context.startActivity(intent)
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp),
                         shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(primaryColor)
                     ) {
-                        Text(startGameText)
+                        Text("Rozpocznij grę")
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                 }
@@ -227,7 +220,6 @@ fun DisplayTournamentDetails(
                         items(teams) { team ->
                             TeamCardWithScoreInput(
                                 team = team,
-                                isGameStarted = isGameStarted,
                                 onScoreChange = { newScore ->
                                     teamViewModel.updateTeamScore(team.id, newScore)
                                 }
@@ -253,11 +245,10 @@ fun DisplayTournamentDetails(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TeamCardWithScoreInput(
     team: Team,
-    isGameStarted: Boolean,
+    //isGameStarted: Boolean,
     onScoreChange: (Int) -> Unit
 ) {
     var score by remember { mutableStateOf(team.points) }
@@ -273,7 +264,7 @@ fun TeamCardWithScoreInput(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(text = team.name, style = MaterialTheme.typography.headlineSmall)
-            if (isGameStarted) {
+            /*if (isGameStarted) {
                 OutlinedTextField(
                     value = score.toString(),
                     onValueChange = { newScore ->
@@ -286,7 +277,7 @@ fun TeamCardWithScoreInput(
                         .fillMaxWidth()
                         .padding(top = 8.dp)
                 )
-            }
+            }*/
         }
     }
 }

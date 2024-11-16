@@ -12,5 +12,5 @@ data class Tournament(
     val rounds: Int = 0,
     val matches: List<Match> = listOf(),
     val createdBy: String = "",
-    var ended: Boolean? = null
+    var ended: Boolean = false
 ) : Parcelable

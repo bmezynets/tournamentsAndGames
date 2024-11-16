@@ -6,6 +6,7 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 data class Match(
     val id: String = "",
+    val _id: String = "",
     val tournamentId: String = "",
     val roundNr: Number = 0,
     val teamA: Team = Team(),

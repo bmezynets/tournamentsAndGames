@@ -1,5 +1,6 @@
 package com.example.tournamentsandgames.ui.home
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -69,6 +70,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
 import com.example.tournamentsandgames.R
 import com.example.tournamentsandgames.data.model.Team
 import com.example.tournamentsandgames.data.model.Tournament
@@ -87,6 +89,8 @@ import com.example.tournamentsandgames.ui.tournaments.AddTournamentActivity
 import com.example.tournamentsandgames.ui.tournaments.TeamCard
 import com.example.tournamentsandgames.ui.tournaments.TournamentDescriptionActivity
 import com.example.tournamentsandgames.ui.tournaments.TournamentViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.tournamentsandgames.ui.tournamentTab.TournamentTabMainPage
 
 class Home : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,8 +111,9 @@ class Home : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
-    val tabs = listOf("Home", "Tournaments", "Profile")
+    val tabs = listOf("Start", "Turnieje", "Profil")
     var selectedTabIndex by remember { mutableStateOf(0) }
+    val context = LocalContext.current as Activity
 
     Scaffold(
         bottomBar = {
@@ -137,7 +142,7 @@ fun MainScreen() {
         Box(modifier = Modifier.padding(paddingValues)) {
             when (selectedTabIndex) {
                 0 -> HomeContent()
-                1 -> TournamentsContent()
+                1 -> TournamentTabMainPage()
                 2 -> ProfileContent()
             }
         }
@@ -236,8 +241,8 @@ fun ProfileContent() {
 
 @Composable
 fun HomeScreen() {
-    val authViewModel: AuthViewModel = AuthViewModel()
-    val tournamentViewModel = TournamentViewModel()
+    val authViewModel: AuthViewModel = viewModel()
+    val tournamentViewModel:TournamentViewModel = viewModel()
     val currentUser = authViewModel.getCurrentUser()
     val isLogged = authViewModel.isUserLoggedIn()
     val context = LocalContext.current
