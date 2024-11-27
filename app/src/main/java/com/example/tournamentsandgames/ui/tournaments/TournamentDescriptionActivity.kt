@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -200,6 +201,8 @@ fun DisplayTournamentDetails(
                 if (!isGameEnded) {
                     Button(
                         onClick = {
+                            Log.d("TRY START TMT", tournament._id)
+                            tournamentViewModel.startTournament(tournament._id)
                             val intent = Intent(context, TournamentsProcessActivity::class.java).putExtra("tournamentId", tournament._id)
                             context.startActivity(intent)
                         },
@@ -209,7 +212,8 @@ fun DisplayTournamentDetails(
                         shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(primaryColor)
                     ) {
-                        Text("Rozpocznij grę")
+                        val text = if(tournament.started) "Kontynuuj" else "Rozpocznij grę"
+                        Text(text)
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                 }
@@ -218,29 +222,13 @@ fun DisplayTournamentDetails(
                 if (teams.isNotEmpty()) {
                     LazyColumn {
                         items(teams) { team ->
-                            TeamCardWithScoreInput(
-                                team = team,
-                                onScoreChange = { newScore ->
-                                    teamViewModel.updateTeamScore(team.id, newScore)
-                                }
-                            )
+                            TeamCardWithScoreInput(team)
                         }
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-
-            /*Button(
-                onClick = { isGameEnded = true },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(primaryColor)
-            ) {
-                Text("Zakończ turniej")
-            }*/
         }
     }
 }
@@ -248,8 +236,6 @@ fun DisplayTournamentDetails(
 @Composable
 fun TeamCardWithScoreInput(
     team: Team,
-    //isGameStarted: Boolean,
-    onScoreChange: (Int) -> Unit
 ) {
     var score by remember { mutableStateOf(team.points) }
 
@@ -264,20 +250,6 @@ fun TeamCardWithScoreInput(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(text = team.name, style = MaterialTheme.typography.headlineSmall)
-            /*if (isGameStarted) {
-                OutlinedTextField(
-                    value = score.toString(),
-                    onValueChange = { newScore ->
-                        val updatedScore = newScore.toIntOrNull() ?: score
-                        score = updatedScore
-                        onScoreChange(updatedScore)
-                    },
-                    label = { Text("Wynik") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp)
-                )
-            }*/
         }
     }
 }

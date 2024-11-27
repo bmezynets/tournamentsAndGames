@@ -31,6 +31,9 @@ class TournamentViewModel : ViewModel() {
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    private val _startTournamentState = MutableStateFlow<FirebaseResult<Boolean>>(FirebaseResult.Loading)
+    val startTournamentState: StateFlow<FirebaseResult<Boolean>> = _startTournamentState
+
     private val database = FirebaseDatabase.getInstance().getReference("tournaments")
 
     fun addTournament(tournament: Tournament) {
@@ -60,6 +63,30 @@ class TournamentViewModel : ViewModel() {
             val result = tournamentRepository.getTournamentsById(id)
             _getTournamentByIdState.value = result
             Log.d("RESULT:", result.toString())
+        }
+    }
+
+    fun startTournament(tournamentId: String) {
+        viewModelScope.launch {
+            _startTournamentState.value = FirebaseResult.Loading
+            val result = tournamentRepository.startTournament(tournamentId)
+            _startTournamentState.value = result
+        }
+    }
+
+    fun endTournament(tournamentId: String) {
+        viewModelScope.launch {
+            _startTournamentState.value = FirebaseResult.Loading
+            val result = tournamentRepository.endTournament(tournamentId)
+            _startTournamentState.value = result
+        }
+    }
+
+    fun setCurrentRound(tournamentId: String, round: Int) {
+        viewModelScope.launch {
+            _startTournamentState.value = FirebaseResult.Loading
+            val result = tournamentRepository.setCurrentRound(tournamentId, round)
+            _startTournamentState.value = result
         }
     }
 }

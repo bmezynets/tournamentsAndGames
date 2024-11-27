@@ -54,6 +54,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tournamentsandgames.R
 import com.example.tournamentsandgames.data.model.Player
 import com.example.tournamentsandgames.data.model.Team
@@ -93,8 +95,9 @@ class CreateTournamentSummaryActivity : ComponentActivity() {
 @Composable
 fun Step3(tournament: Tournament?) {
     val activity = LocalContext.current as? ComponentActivity
-    val playerViewModel = PlayerViewModel()
-    val tournamentViewModel = TournamentViewModel()
+    val playerViewModel: PlayerViewModel = viewModel()
+    val tournamentViewModel: TournamentViewModel = viewModel()
+    val teamViewModel: TeamViewModel = viewModel()
 
     if(tournament === null) {
         Toast.makeText(activity, "Błąd w trakcie dodania gracza! Spróbuj ponownie", Toast.LENGTH_SHORT).show()
@@ -181,6 +184,7 @@ fun Step3(tournament: Tournament?) {
                 onClick = {
                     try {
                         tournament!!.teams.forEach { team ->
+                            teamViewModel.addTeam(team)
                             team.players.forEach { player ->
                                 player.teamId = team._id
                                 playerViewModel.addPlayer(player)

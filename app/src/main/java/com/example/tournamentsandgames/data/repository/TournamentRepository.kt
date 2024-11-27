@@ -1,5 +1,6 @@
 package com.example.tournamentsandgames.data.repository
 
+import android.util.Log
 import com.example.tournamentsandgames.data.firebase.FirebaseDatabaseService
 import com.example.tournamentsandgames.data.model.Tournament
 import com.google.firebase.database.FirebaseDatabase
@@ -63,4 +64,67 @@ class TournamentRepository private constructor() {
         }
     }
 
+    suspend fun startTournament(tournamentId: String): FirebaseResult<Boolean> {
+        return try {
+            val querySnapshot = database.orderByChild("_id").equalTo(tournamentId).get().await()
+
+            if (querySnapshot.exists() && querySnapshot.childrenCount > 0) {
+                val tournamentSnapshot = querySnapshot.children.firstOrNull()
+
+                if (tournamentSnapshot != null) {
+                    tournamentSnapshot.ref.child("started").setValue(true).await()
+                    FirebaseResult.Success(true)
+                } else {
+                    throw Exception("Tournament not found")
+                }
+            } else {
+                throw Exception("Tournament not found")
+            }
+        } catch (e: Exception) {
+            FirebaseResult.Error(e)
+        }
+    }
+
+
+    suspend fun endTournament(tournamentId: String): FirebaseResult<Boolean> {
+        return try {
+            val querySnapshot = database.orderByChild("_id").equalTo(tournamentId).get().await()
+
+            if (querySnapshot.exists() && querySnapshot.childrenCount > 0) {
+                val tournamentSnapshot = querySnapshot.children.firstOrNull()
+
+                if (tournamentSnapshot != null) {
+                    tournamentSnapshot.ref.child("ended").setValue(true).await()
+                    FirebaseResult.Success(true)
+                } else {
+                    throw Exception("Tournament not found")
+                }
+            } else {
+                throw Exception("Tournament not found")
+            }
+        } catch (e: Exception) {
+            FirebaseResult.Error(e)
+        }
+    }
+
+    suspend fun setCurrentRound(tournamentId: String, round: Int): FirebaseResult<Boolean> {
+        return try {
+            val querySnapshot = database.orderByChild("_id").equalTo(tournamentId).get().await()
+
+            if (querySnapshot.exists() && querySnapshot.childrenCount > 0) {
+                val tournamentSnapshot = querySnapshot.children.firstOrNull()
+
+                if (tournamentSnapshot != null) {
+                    tournamentSnapshot.ref.child("currentRound").setValue(round).await()
+                    FirebaseResult.Success(true)
+                } else {
+                    throw Exception("Tournament not found")
+                }
+            } else {
+                throw Exception("Tournament not found")
+            }
+        } catch (e: Exception) {
+            FirebaseResult.Error(e)
+        }
+    }
 }

@@ -10,4 +10,5 @@ data class Team(
     val name: String = "",
     val points: Int = 0,
     val players: List<Player> = listOf(),
+    val tournamentId: String = ""
 ) : Parcelable

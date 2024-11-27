@@ -273,7 +273,8 @@ fun Step2(tournament: Tournament?) {
                                     _id = UUID.randomUUID().toString(),
                                     name = "$firstPlayerName $firstPlayerSurname",
                                     points = 0,
-                                    players = listOf(player)
+                                    players = listOf(player),
+                                    tournamentId = tournament._id
                                 )
 
                                 tournament.teams.add(team)

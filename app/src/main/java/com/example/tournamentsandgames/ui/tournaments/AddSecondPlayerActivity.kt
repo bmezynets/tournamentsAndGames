@@ -273,7 +273,8 @@ fun Step4(tournament: Tournament?) {
                                     _id = UUID.randomUUID().toString(),
                                     name = "$secondPlayerName $secondPlayerSurname",
                                     points = 0,
-                                    players = listOf(player)
+                                    players = listOf(player),
+                                    tournamentId = tournament._id
                                 )
 
                                 tournament.teams.add(team)
@@ -281,7 +282,6 @@ fun Step4(tournament: Tournament?) {
                                     activity,
                                     CreateTournamentSummaryActivity::class.java
                                 ).putExtra("tournament", tournament)
-                                //intent = Intent(activity, AddSecondPlayerActivity::class.java).putExtra("", tournament)
                                 activity!!.startActivity(intent)
                             } else {
                                 Toast.makeText(
