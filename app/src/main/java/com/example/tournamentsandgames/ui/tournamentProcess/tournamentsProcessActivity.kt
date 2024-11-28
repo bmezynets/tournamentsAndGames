@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -46,9 +47,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -58,6 +61,7 @@ import com.example.tournamentsandgames.data.model.Match
 import com.example.tournamentsandgames.data.model.Team
 import com.example.tournamentsandgames.data.model.Tournament
 import com.example.tournamentsandgames.data.repository.FirebaseResult
+import com.example.tournamentsandgames.ui.home.Home
 import com.example.tournamentsandgames.ui.home.ui.theme.primaryColor
 import com.example.tournamentsandgames.ui.tournaments.TeamCardWithScoreInput
 import com.example.tournamentsandgames.ui.tournaments.TeamViewModel
@@ -85,10 +89,12 @@ fun TournamentRoundsScreen(tournamentId: String) {
     val tournamentState by tournamentViewModel.getTournamentByIdState.collectAsState()
     val teamsState by teamViewModel.teamsState.collectAsState()
 
-    var currentRound by remember { mutableIntStateOf(0) }
-    var inputPoints by remember { mutableStateOf(mutableMapOf<String, Int>()) }
+    val inputPoints by remember { mutableStateOf(mutableMapOf<String, Int>()) }
     var teamsList  by remember { mutableStateOf(listOf<Team>()) }
     var tournament by remember { mutableStateOf(Tournament()) }
+    var resetField by remember { mutableStateOf(false) }
+
+    val activity =  LocalContext.current as? ComponentActivity
 
     LaunchedEffect(tournamentId) {
         tournamentViewModel.getTournamentsById(tournamentId)
@@ -181,6 +187,9 @@ fun TournamentRoundsScreen(tournamentId: String) {
                 }
 
                 if (!tournament.ended) {
+
+                    resetField = false
+
                     Text(
                         text = "Runda ${tournament.currentRound}",
                         style = TextStyle(
@@ -198,15 +207,15 @@ fun TournamentRoundsScreen(tournamentId: String) {
                                     team = team,
                                     pointsMap = inputPoints,
                                     onPointsUpdated = { newScore ->
-                                        //teamViewModel.updateTeamScore(team.id, newScore)
-                                        inputPoints[team._id] = newScore
-                                    }
+                                        inputPoints[team._id] = newScore + team.points
+                                    },
+                                    resetField
                                 )
                             }
                         }
                     }
-                    Log.d("CURRENT ROUND", "${tournament.currentRound} ${tournament.currentRound < tournament.rounds - 1 || tournament.currentRound == 1}")
-                    if (tournament.currentRound < tournament.rounds - 1 || tournament.currentRound == 1) {
+
+                    if (tournament.currentRound < tournament.rounds || tournament.currentRound == 1) {
                         Button(
                             onClick = {
                                 teamsList.forEach { team ->
@@ -214,6 +223,7 @@ fun TournamentRoundsScreen(tournamentId: String) {
                                     teamViewModel.updateTeamScore(team._id, points)
                                 }
 
+                                resetField = true
                                 inputPoints.clear()
                                 tournament.currentRound += 1
                                 tournamentViewModel.setCurrentRound(tournamentId, tournament.currentRound)
@@ -225,11 +235,18 @@ fun TournamentRoundsScreen(tournamentId: String) {
                     } else {
                         Button(
                             onClick = {
+                                teamsList.forEach { team ->
+                                    val points = inputPoints[team._id] ?: 0
+                                    teamViewModel.updateTeamScore(team._id, points)
+                                }
+
+                                inputPoints.clear()
                                 tournamentViewModel.endTournament(tournamentId)
+                                activity!!.startActivity(Intent(activity, Home::class.java))
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("End Tournament")
+                            Text("Zakończ turniej")
                         }
                     }
                 }
@@ -238,123 +255,6 @@ fun TournamentRoundsScreen(tournamentId: String) {
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
-
-    /*when (val result = tournamentState) {
-        is FirebaseResult.Success -> {
-            val tournament = result.data[0]
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                ) {
-                    Text(
-                        text = tournament.name,
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                if (!tournament.started) {
-                    Button(
-                        onClick = { tournamentViewModel.startTournament(tournamentId) },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Start Tournament")
-                    }
-
-                    LazyColumn(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(tournament.teams.size) { team ->
-                            TeamRow(team = tournament.teams[team])
-                        }
-                    }
-                } else {
-                    Text(
-                        text = "Round ${currentRound + 1}",
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-
-                    LazyColumn(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(teamsList.size) { idx ->
-                            TeamPointsRow(team = teamsList[idx], pointsMap = inputPoints) { updatedPoints ->
-                                inputPoints += mapOf(tournament._id to updatedPoints)
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    if (currentRound < tournament.rounds - 1) {
-                        Button(
-                            onClick = {
-                                teamsList.forEach { team ->
-                                    teamViewModel.updateTeamScore(team._id, inputPoints.get(0))
-                                }
-
-                                inputPoints.clear()
-                                currentRound += 1
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Next Round")
-                        }
-                    } else {
-                        Button(
-                            onClick = {
-                                teamViewModel.endTournament(tournament)
-                                // Navigate to summary activity
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("End Tournament")
-                        }
-                    }
-                }
-            }
-        }
-
-        is FirebaseResult.Loading -> {
-            CircularProgressIndicator()
-        }
-
-        is FirebaseResult.Error -> {
-            Text("Error: ${result.exception.message}")
-        }
-    }
-}
-
-@Composable
-fun TeamRow(team: Team) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Text(text = team.name, style = MaterialTheme.typography.titleMedium)
-            Text(text = "Players: ${team.players.size}", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "Total Points: ${team.points}", style = MaterialTheme.typography.bodyMedium)
-        }
-    }
-*/
 }
 
 
@@ -364,9 +264,14 @@ fun TeamRow(team: Team) {
 fun TeamPointsRow(
     team: Team,
     pointsMap: Map<String, Int>,
-    onPointsUpdated: (Int) -> Unit
+    onPointsUpdated: (Int) -> Unit,
+    resetField: Boolean
 ) {
-    val points = pointsMap[team._id]?.toString() ?: ""
+    val currentPoints = remember { mutableStateOf("") }
+    if(resetField) {
+        currentPoints.value = ""
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -381,14 +286,20 @@ fun TeamPointsRow(
         )
 
         OutlinedTextField(
-            value = pointsMap[team._id]?.toString() ?: "",
-            placeholder = { Text(pointsMap[team._id]?.toString() ?: "0") },
+            value = currentPoints.value,
+            placeholder = { Text("0") },
             onValueChange = { input ->
-                val points = input.toIntOrNull() ?: 0
-                onPointsUpdated(points)
+                if (input.all { it.isDigit() }) {
+                    currentPoints.value = input
+                    val points = input.toIntOrNull() ?: 0
+                    onPointsUpdated(points)
+                }
             },
             label = { Text("Points") },
             singleLine = true,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Number
+            ),
             modifier = Modifier.weight(1f)
         )
     }
