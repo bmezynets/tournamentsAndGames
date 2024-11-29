@@ -49,17 +49,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tournamentsandgames.data.model.Tournament
 import com.example.tournamentsandgames.data.repository.FirebaseResult
 import com.example.tournamentsandgames.ui.auth.AuthViewModel
 import com.example.tournamentsandgames.ui.home.HomeCard
-import com.example.tournamentsandgames.ui.home.HomeContent
-import com.example.tournamentsandgames.ui.home.ProfileContent
 import com.example.tournamentsandgames.ui.home.ui.theme.primaryColor
 import com.example.tournamentsandgames.ui.tournamentProcess.EndedTournamentSummary
-import com.example.tournamentsandgames.ui.tournamentTab.ui.theme.TournamentsAndGamesTheme
 import com.example.tournamentsandgames.ui.tournaments.AddTournamentActivity
-import com.example.tournamentsandgames.ui.tournaments.ShowDescription
 import com.example.tournamentsandgames.ui.tournaments.TournamentDescriptionActivity
 import com.example.tournamentsandgames.ui.tournaments.TournamentViewModel
 
