@@ -197,13 +197,13 @@ fun Step2(tournament: Tournament?) {
                             label = { Text("Imię") },
                             modifier = Modifier.fillMaxWidth(),
                             colors = TextFieldDefaults.textFieldColors(
-                                containerColor = Color.White,
-                                focusedIndicatorColor = Color.Transparent,
+                                containerColor = tintColor,
                                 unfocusedIndicatorColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent,
                                 textColor = Color.Black,
-                                disabledLabelColor = Color.Gray,
-                                focusedLabelColor = Color.Blue,
-                                unfocusedLabelColor = Color.Gray,
+                                disabledLabelColor = primaryColor,
+                                focusedLabelColor = primaryColor,
+                                unfocusedLabelColor = primaryColor,
                             ),
                             shape = RoundedCornerShape(10.dp)
                         )

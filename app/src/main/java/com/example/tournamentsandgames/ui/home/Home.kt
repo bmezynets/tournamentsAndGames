@@ -368,7 +368,7 @@ fun HomeScreen(refresh: Boolean) {
                             CircularProgressIndicator()
                         }
                         is FirebaseResult.Success -> {
-                            val tournaments = result.data
+                            val tournaments = result.data.reversed()
                             if (tournaments.isNotEmpty()) {
                                 LazyColumn {
                                     items(tournaments) { tournament ->
@@ -399,10 +399,10 @@ fun HomeScreen(refresh: Boolean) {
                             CircularProgressIndicator()
                         }
                         is FirebaseResult.Success -> {
-                            val tournaments = result.data
+                            val tournaments = result.data.reversed()
                             if (tournaments.isNotEmpty()) {
                                 LazyColumn {
-                                    items(tournaments.reversed()) { tournament ->
+                                    items(tournaments) { tournament ->
                                         HomeCard(tournament = tournament) {
                                             val intent =
                                                 if(!tournament.ended)

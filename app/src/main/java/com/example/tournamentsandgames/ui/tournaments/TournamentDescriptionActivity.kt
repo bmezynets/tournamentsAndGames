@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -51,6 +52,7 @@ import com.example.tournamentsandgames.R
 import com.example.tournamentsandgames.data.model.Team
 import com.example.tournamentsandgames.data.model.Tournament
 import com.example.tournamentsandgames.data.repository.FirebaseResult
+import com.example.tournamentsandgames.ui.home.Home
 import com.example.tournamentsandgames.ui.home.ui.theme.primaryColor
 import com.example.tournamentsandgames.ui.tournamentProcess.TournamentsProcessActivity
 import com.example.tournamentsandgames.ui.tournaments.ui.theme.TournamentsAndGamesTheme
@@ -224,10 +226,30 @@ fun DisplayTournamentDetails(
 
                 val teams = tournament.teams
                 if (teams.isNotEmpty()) {
-                    LazyColumn {
+                    LazyColumn (
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)
+                            .heightIn(max = 200.dp)
+                    ) {
                         items(teams) { team ->
                             TeamCardWithScoreInput(team)
                         }
+                    }
+                    Button(
+                        onClick = {
+                            val intent = Intent(context, Home::class.java)
+                            intent.putExtra("reload", true)
+                            context.startActivity(intent)
+                            context.finish()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(primaryColor)
+                    ) {
+                        Text("Ok")
                     }
                 }
             }
