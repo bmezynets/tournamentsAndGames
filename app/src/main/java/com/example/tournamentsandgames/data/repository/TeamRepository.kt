@@ -79,4 +79,16 @@ class TeamRepository private constructor() {
             FirebaseResult.Error(e)
         }
     }
+
+    suspend fun getSortedTeamsByPoints(tournamentId: String): FirebaseResult<List<Team>> {
+        return try {
+            val snapshot = database.orderByChild("tournamentId").equalTo(tournamentId).get().await()
+            val teams = snapshot.children.mapNotNull { it.getValue(Team::class.java) }
+            val sortedTeams = teams.sortedByDescending { it.points }
+            FirebaseResult.Success(sortedTeams)
+        } catch (e: Exception) {
+            FirebaseResult.Error(e)
+        }
+    }
+
 }

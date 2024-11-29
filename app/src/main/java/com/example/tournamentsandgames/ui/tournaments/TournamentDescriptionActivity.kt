@@ -201,7 +201,6 @@ fun DisplayTournamentDetails(
                 if (!isGameEnded) {
                     Button(
                         onClick = {
-                            Log.d("TRY START TMT", tournament._id)
                             tournamentViewModel.startTournament(tournament._id)
                             val intent = Intent(context, TournamentsProcessActivity::class.java).putExtra("tournamentId", tournament._id)
                             context.startActivity(intent)
@@ -216,6 +215,11 @@ fun DisplayTournamentDetails(
                         Text(text)
                     }
                     Spacer(modifier = Modifier.height(16.dp))
+                }else {
+                    Text(
+                        text = "Turniej zakończony:",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
                 }
 
                 val teams = tournament.teams

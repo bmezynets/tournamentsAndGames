@@ -21,24 +21,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,20 +44,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Popup
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tournamentsandgames.data.model.Tournament
 import com.example.tournamentsandgames.data.repository.FirebaseResult
 import com.example.tournamentsandgames.ui.auth.AuthViewModel
-import com.example.tournamentsandgames.ui.home.Home
 import com.example.tournamentsandgames.ui.home.ui.theme.colorMain
 import com.example.tournamentsandgames.ui.home.ui.theme.primaryColor
 import com.example.tournamentsandgames.ui.home.ui.theme.tintColor
 import com.example.tournamentsandgames.ui.tournaments.ui.theme.TournamentsAndGamesTheme
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 class AddTournamentActivity : ComponentActivity() {
@@ -224,13 +215,17 @@ fun AddTournamentScreen() {
                 Button(
                     onClick = {
                         // Dodanie nowego turnieju
+                        val dateFormatter = DateTimeFormatter.ofPattern("dd.mm.yyyy")
+                        val current = LocalDateTime.now().format(dateFormatter).toString()
+
                         val tournament = Tournament(
                             id = "",
                             _id = UUID.randomUUID().toString(),
                             name = tournamentName,
                             rounds = numberOfRounds.toIntOrNull() ?: 0,
                             createdBy = currentUser!!.uid,
-                            ended = false
+                            ended = false,
+                            dateCreated = current
                         )
 
                         try {
@@ -323,3 +318,5 @@ fun AddTournamentScreen() {
         }
     }
 }
+
+

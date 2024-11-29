@@ -56,6 +56,7 @@ import com.example.tournamentsandgames.ui.home.HomeCard
 import com.example.tournamentsandgames.ui.home.HomeContent
 import com.example.tournamentsandgames.ui.home.ProfileContent
 import com.example.tournamentsandgames.ui.home.ui.theme.primaryColor
+import com.example.tournamentsandgames.ui.tournamentProcess.EndedTournamentSummary
 import com.example.tournamentsandgames.ui.tournamentTab.ui.theme.TournamentsAndGamesTheme
 import com.example.tournamentsandgames.ui.tournaments.AddTournamentActivity
 import com.example.tournamentsandgames.ui.tournaments.ShowDescription
@@ -85,67 +86,64 @@ fun TournamentTabMainPage() {
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Card(
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight()
                 .padding(16.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Twoje turnieje:",
+                style = MaterialTheme.typography.headlineSmall
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = {
+                    context.startActivity(Intent(context, AddTournamentActivity::class.java))
+                    activity?.finish()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.buttonColors(primaryColor)
             ) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Text("Dodaj nowy turniej")
+            }
 
-                Text(
-                    text = "Twoje turnieje:",
-                    style = MaterialTheme.typography.headlineSmall
-                )
+            Spacer(modifier = Modifier.height(8.dp))
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                when (val result = tournamentsState) {
-                    is FirebaseResult.Loading -> {
-                        CircularProgressIndicator()
-                    }
-                    is FirebaseResult.Success -> {
-                        val tournaments = result.data
-                        if (tournaments.isNotEmpty()) {
-                            LazyColumn {
-                                items(tournaments) { tournament ->
-                                    HomeCard(tournament = tournament) {
-                                        val intent = Intent(context, TournamentDescriptionActivity::class.java)
-                                        intent.putExtra("tournamentId", tournament._id)
-                                        intent.putExtra("tournament", tournament)
-                                        context.startActivity(intent)
-                                    }
+            when (val result = tournamentsState) {
+                is FirebaseResult.Loading -> {
+                    CircularProgressIndicator()
+                }
+                is FirebaseResult.Success -> {
+                    val tournaments = result.data.reversed()
+                    if (tournaments.isNotEmpty()) {
+                        LazyColumn {
+                            items(tournaments) { tournament ->
+                                HomeCard(tournament = tournament) {
+                                    val intent =
+                                        if(!tournament.ended)
+                                            Intent(context, TournamentDescriptionActivity::class.java)
+                                        else
+                                            Intent(context, EndedTournamentSummary::class.java)
+                                    intent.putExtra("tournamentId", tournament._id)
+                                    intent.putExtra("tournament", tournament)
+                                    context.startActivity(intent)
                                 }
                             }
-                        } else {
-                            Text("Nie masz jeszcze turniejów.")
                         }
-                    }
-                    is FirebaseResult.Error -> {
-                        Text("Błąd: ${result.exception.message}")
+                    } else {
+                        Text("Nie masz jeszcze turniejów.")
                     }
                 }
-
-                Button(
-                    onClick = {
-                        context.startActivity(Intent(context, AddTournamentActivity::class.java))
-                        activity?.finish()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(primaryColor)
-                ) {
-                    Text("Dodaj nowy turniej")
+                is FirebaseResult.Error -> {
+                    Text("Błąd: ${result.exception.message}")
                 }
             }
         }

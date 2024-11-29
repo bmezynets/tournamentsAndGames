@@ -13,6 +13,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TournamentsAndGames">
         <activity
+            android:name=".ui.tournamentProcess.EndedTournamentSummary"
+            android:exported="false"
+            android:label="@string/title_activity_ended_tournament_summary"
+            android:theme="@style/Theme.TournamentsAndGames" />
+        <activity
             android:name=".ui.tournamentProcess.TournamentsProcessActivity"
             android:exported="false"
             android:label="@string/title_activity_tournaments_process"

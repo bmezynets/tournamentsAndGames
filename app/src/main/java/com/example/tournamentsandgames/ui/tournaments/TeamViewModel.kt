@@ -21,6 +21,9 @@ class TeamViewModel: ViewModel() {
     private val _deleteTeamState = MutableStateFlow<FirebaseResult<Unit>>(FirebaseResult.Loading)
     val deleteTeamState: StateFlow<FirebaseResult<Unit>> = _deleteTeamState
 
+    private val _getSortedListState = MutableStateFlow<FirebaseResult<List<Team>>>(FirebaseResult.Loading)
+    val getSortedListState: StateFlow<FirebaseResult<List<Team>>> = _getSortedListState
+
     fun addTeam(team: Team) {
         viewModelScope.launch {
             val result = teamRepository.addTeam(team)
@@ -58,7 +61,6 @@ class TeamViewModel: ViewModel() {
         }
     }
 
-    // Function to update team score in the database
     fun updateTeamScore(teamId: String, newScore: Int) {
         viewModelScope.launch {
             val result = teamRepository.updateTeamScore(teamId, newScore)
@@ -67,6 +69,14 @@ class TeamViewModel: ViewModel() {
                 val tournamentId = result.data
                 getTeamByTournamentId(tournamentId)
             }
+        }
+    }
+
+    fun getSortedTeamsByPoints(tournamentId: String) {
+        viewModelScope.launch {
+            _getSortedListState.value = FirebaseResult.Loading
+            val result = teamRepository.getSortedTeamsByPoints(tournamentId)
+            _getSortedListState.value = result
         }
     }
 }

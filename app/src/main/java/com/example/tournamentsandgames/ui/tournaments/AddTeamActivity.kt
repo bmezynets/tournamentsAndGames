@@ -62,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tournamentsandgames.R
 import com.example.tournamentsandgames.data.model.Player
 import com.example.tournamentsandgames.data.model.Team
@@ -102,7 +103,7 @@ class AddTeamActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTeamScreen(tournamentRaw: Tournament?) {
-    var tournament = tournamentRaw
+    val tournament = tournamentRaw
     val activity = LocalContext.current as? ComponentActivity
     var teamName by remember { mutableStateOf("") }
     var playerName by remember { mutableStateOf("") }
@@ -113,9 +114,9 @@ fun AddTeamScreen(tournamentRaw: Tournament?) {
     var showTeamDialog by remember { mutableStateOf(false) }
     val playersList = remember { mutableStateListOf<String>() }
 
-    val tournamentViewModel = TournamentViewModel()
-    val playerViewModel = PlayerViewModel()
-    val teamViewModel = TeamViewModel()
+    val tournamentViewModel:TournamentViewModel = viewModel()
+    val playerViewModel:PlayerViewModel = viewModel()
+    val teamViewModel:TeamViewModel = viewModel()
     val clickedTeam = remember { mutableStateOf(Team()) }
     val context = LocalContext.current
 
@@ -361,7 +362,8 @@ fun AddTeamScreen(tournamentRaw: Tournament?) {
                                     _id = UUID.randomUUID().toString(),
                                     name = teamName,
                                     points = 0,
-                                    players = playersList.map { Player(id = "", _id = UUID.randomUUID().toString(), name = it, surname = "", tournamentId = tournament!!._id) }
+                                    players = playersList.map { Player(id = "", _id = UUID.randomUUID().toString(), name = it, surname = "", tournamentId = tournament!!._id) },
+                                    tournamentId = tournament!!._id
                                 )
                                 teamsList.add(newTeam)
 
@@ -378,7 +380,7 @@ fun AddTeamScreen(tournamentRaw: Tournament?) {
                                             _id = UUID.randomUUID().toString(),
                                             name = nameFormatted[0] ,
                                             surname = if (nameFormatted.size > 1) nameFormatted[1] else "",
-                                            tournamentId = tournament!!._id,
+                                            tournamentId = tournament._id,
                                             teamId = teamId
                                         )
 
@@ -391,7 +393,8 @@ fun AddTeamScreen(tournamentRaw: Tournament?) {
                                         _id = UUID.randomUUID().toString(),
                                         name = teamName,
                                         points = 0,
-                                        players = teamPlayers
+                                        players = teamPlayers,
+                                        tournamentId = tournament._id
                                     )
 
                                     teamViewModel.addTeam(team)

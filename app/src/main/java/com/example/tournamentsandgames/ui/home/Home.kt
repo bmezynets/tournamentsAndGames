@@ -90,18 +90,22 @@ import com.example.tournamentsandgames.ui.tournaments.TeamCard
 import com.example.tournamentsandgames.ui.tournaments.TournamentDescriptionActivity
 import com.example.tournamentsandgames.ui.tournaments.TournamentViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.tournamentsandgames.ui.tournamentProcess.EndedTournamentSummary
 import com.example.tournamentsandgames.ui.tournamentTab.TournamentTabMainPage
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class Home : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val refresh = intent.getBooleanExtra("reload", true)
         setContent {
             TournamentsAndGamesTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen()
+                    MainScreen(refresh)
                 }
             }
         }
@@ -110,10 +114,9 @@ class Home : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
+fun MainScreen(refresh: Boolean) {
     val tabs = listOf("Start", "Turnieje", "Profil")
     var selectedTabIndex by remember { mutableStateOf(0) }
-    val context = LocalContext.current as Activity
 
     Scaffold(
         bottomBar = {
@@ -141,7 +144,7 @@ fun MainScreen() {
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
             when (selectedTabIndex) {
-                0 -> HomeContent()
+                0 -> HomeContent(refresh)
                 1 -> TournamentTabMainPage()
                 2 -> ProfileContent()
             }
@@ -150,8 +153,8 @@ fun MainScreen() {
 }
 
 @Composable
-fun HomeContent() {
-    HomeScreen()
+fun HomeContent(refresh: Boolean) {
+    HomeScreen(refresh)
 }
 
 @Composable
@@ -225,7 +228,7 @@ fun ProfileContent() {
             Text(text = "Name: ${currentUser.displayName}")
             Text(text = "Email: ${currentUser.email}")
         } else {
-            Text("No User Data Available")
+            Text("Niema danych użytkownika")
         }
 
         Button(
@@ -234,13 +237,13 @@ fun ProfileContent() {
             },
             modifier = Modifier.padding(top = 16.dp)
         ) {
-            Text("Edit Profile")
+            Text("Edytuj")
         }
     }
 }
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(refresh: Boolean) {
     val authViewModel: AuthViewModel = viewModel()
     val tournamentViewModel:TournamentViewModel = viewModel()
     val currentUser = authViewModel.getCurrentUser()
@@ -359,29 +362,67 @@ fun HomeScreen() {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                when (val result = tournamentsState) {
-                    is FirebaseResult.Loading -> {
-                        CircularProgressIndicator()
-                    }
-                    is FirebaseResult.Success -> {
-                        val tournaments = result.data
-                        if (tournaments.isNotEmpty()) {
-                            LazyColumn {
-                                items(tournaments) { tournament ->
-                                    HomeCard(tournament = tournament) {
-                                        val intent = Intent(context, TournamentDescriptionActivity::class.java)
-                                        intent.putExtra("tournamentId", tournament._id)
-                                        intent.putExtra("tournament", tournament)
-                                        context.startActivity(intent)
+                if(refresh) {
+                    when (val result = tournamentsState) {
+                        is FirebaseResult.Loading -> {
+                            CircularProgressIndicator()
+                        }
+                        is FirebaseResult.Success -> {
+                            val tournaments = result.data
+                            if (tournaments.isNotEmpty()) {
+                                LazyColumn {
+                                    items(tournaments) { tournament ->
+                                        HomeCard(tournament = tournament) {
+                                            val intent =
+                                                if(!tournament.ended)
+                                                    Intent(context, TournamentDescriptionActivity::class.java)
+                                                else
+                                                    Intent(context, EndedTournamentSummary::class.java)
+                                            intent.putExtra("tournamentId", tournament._id)
+                                            intent.putExtra("tournament", tournament)
+                                            context.startActivity(intent)
+                                            activity!!.finish()
+                                        }
                                     }
                                 }
+                            } else {
+                                Text("Nie masz jeszcze turniejów.")
                             }
-                        } else {
-                            Text("Nie masz jeszcze turniejów.")
+                        }
+                        is FirebaseResult.Error -> {
+                            Text("Błąd: ${result.exception.message}")
                         }
                     }
-                    is FirebaseResult.Error -> {
-                        Text("Błąd: ${result.exception.message}")
+                } else {
+                    when (val result = tournamentsState) {
+                        is FirebaseResult.Loading -> {
+                            CircularProgressIndicator()
+                        }
+                        is FirebaseResult.Success -> {
+                            val tournaments = result.data
+                            if (tournaments.isNotEmpty()) {
+                                LazyColumn {
+                                    items(tournaments.reversed()) { tournament ->
+                                        HomeCard(tournament = tournament) {
+                                            val intent =
+                                                if(!tournament.ended)
+                                                    Intent(context, TournamentDescriptionActivity::class.java)
+                                                else
+                                                    Intent(context, EndedTournamentSummary::class.java)
+                                            intent.putExtra("tournamentId", tournament._id)
+                                            intent.putExtra("tournament", tournament)
+                                            context.startActivity(intent)
+                                            activity!!.finish()
+                                        }
+                                    }
+                                }
+                            } else {
+                                Text("Nie masz jeszcze turniejów.")
+                            }
+                        }
+                        is FirebaseResult.Error -> {
+                            Text("Błąd: ${result.exception.message}")
+                        }
                     }
                 }
             }
@@ -391,6 +432,10 @@ fun HomeScreen() {
 
 @Composable
 fun HomeCard(tournament: Tournament, onClick: () -> Unit) {
+    val dateFormatter = DateTimeFormatter.ofPattern("dd.mm.yyyy")
+    val current =
+        if (tournament.dateCreated.isNullOrBlank()) LocalDateTime.now().format(dateFormatter).toString()
+        else tournament.dateCreated
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -423,7 +468,7 @@ fun HomeCard(tournament: Tournament, onClick: () -> Unit) {
                     color = Color.Black.copy(alpha = 0.7f)
                 )
                 Text(
-                    text = "Rundy: ${tournament.rounds}",
+                    text = "$current",
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.weight(0.3f),
                     textAlign = TextAlign.End,

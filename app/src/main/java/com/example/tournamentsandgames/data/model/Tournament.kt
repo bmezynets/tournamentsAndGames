@@ -14,5 +14,6 @@ data class Tournament(
     val createdBy: String = "",
     var ended: Boolean = false,
     var started: Boolean = false,
-    var currentRound: Int = 0
+    var currentRound: Int = 0,
+    var dateCreated: String? = null
 ) : Parcelable

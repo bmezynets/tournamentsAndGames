@@ -242,7 +242,10 @@ fun TournamentRoundsScreen(tournamentId: String) {
 
                                 inputPoints.clear()
                                 tournamentViewModel.endTournament(tournamentId)
-                                activity!!.startActivity(Intent(activity, Home::class.java))
+                                val intent = Intent(activity, EndedTournamentSummary::class.java)
+                                intent.putExtra("tournamentId", tournamentId)
+                                activity!!.startActivity(intent)
+                                activity.finish()
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {
