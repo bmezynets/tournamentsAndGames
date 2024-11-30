@@ -417,7 +417,7 @@ fun HomeScreen(refresh: Boolean) {
 
 @Composable
 fun HomeCard(tournament: Tournament, onClick: () -> Unit) {
-    val dateFormatter = DateTimeFormatter.ofPattern("dd.mm.yyyy")
+    val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
     val current =
         tournament.dateCreated.ifBlank { LocalDateTime.now().format(dateFormatter).toString() }
 
