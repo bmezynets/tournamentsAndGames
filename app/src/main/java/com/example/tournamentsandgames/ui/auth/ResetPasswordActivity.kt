@@ -1,5 +1,6 @@
 package com.example.tournamentsandgames.ui.auth
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -28,10 +29,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -43,6 +46,7 @@ import com.example.tournamentsandgames.data.repository.FirebaseResult
 import com.example.tournamentsandgames.ui.auth.ui.theme.TournamentsAndGamesTheme
 import com.example.tournamentsandgames.ui.home.ui.theme.primaryColor
 import com.example.tournamentsandgames.ui.home.ui.theme.tintColor
+import kotlinx.coroutines.launch
 
 class ResetPasswordActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,6 +74,8 @@ fun ResetPassword() {
     var showModal by remember { mutableStateOf(false) }
     var successMessage by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -120,7 +126,9 @@ fun ResetPassword() {
         Button(
             onClick = {
                 if (email.isNotBlank()) {
-                    viewModel.resetPassword(email)
+                    coroutineScope.launch {
+                        viewModel.resetPassword(email)
+                    }
                 } else {
                     errorMessage = "Proszę podać adres e-mail!"
                     showModal = true
@@ -143,26 +151,32 @@ fun ResetPassword() {
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp)
                     ) {
-                        Text(text = "OK")
+                        Text(
+                            text = "OK",
+                        )
                     }
                 }
             )
         }
 
         // Observe reset state
-        when (resetState) {
-            is FirebaseResult.Success -> {
-                successMessage = "E-mail resetowania hasła został wysłany!"
-                showModal = true
-            }
+        if (resetState != null) {
+            when (resetState) {
+                is FirebaseResult.Success -> {
+                    successMessage = "E-mail resetowania hasła został wysłany!"
+                    showModal = true
+                }
 
-            is FirebaseResult.Error -> {
-                errorMessage =
-                    viewModel.getFirebaseErrorMessageReset((resetState as FirebaseResult.Error).exception)
-                showModal = true
-            }
+                is FirebaseResult.Error -> {
+                    errorMessage =
+                        viewModel.getFirebaseErrorMessageReset((resetState as FirebaseResult.Error).exception)
+                    showModal = true
+                }
 
-            else -> {}
+                else -> {
+                    showModal = false
+                }
+            }
         }
     }
 }

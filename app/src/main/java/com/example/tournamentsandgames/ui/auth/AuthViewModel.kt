@@ -11,9 +11,11 @@ import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class AuthViewModel : ViewModel() {
     private val firebaseService = FirebaseService()
@@ -27,8 +29,8 @@ class AuthViewModel : ViewModel() {
     private val _registrationState = MutableStateFlow<FirebaseResult<Unit>>(FirebaseResult.Loading)
     val registrationState: StateFlow<FirebaseResult<Unit>> = _registrationState
 
-    private val _resetPasswordState = MutableStateFlow<FirebaseResult<Unit>>(FirebaseResult.Loading)
-    val resetPasswordState: StateFlow<FirebaseResult<Unit>> = _resetPasswordState
+    private val _resetPasswordState = MutableStateFlow<FirebaseResult<Unit>?>(FirebaseResult.Loading)
+    val resetPasswordState: StateFlow<FirebaseResult<Unit>?> = _resetPasswordState
 
     // Login function
     fun login(email: String, password: String) {
@@ -86,16 +88,19 @@ class AuthViewModel : ViewModel() {
         _registrationState.value = FirebaseResult.Loading
     }
 
-    fun resetPassword(email: String) {
-        _resetPasswordState.value = FirebaseResult.Loading
-        FirebaseAuth.getInstance().sendPasswordResetEmail(email)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    _resetPasswordState.value = FirebaseResult.Success(Unit)
-                } else {
-                    _resetPasswordState.value = FirebaseResult.Error(task.exception ?: Exception("Unknown error"))
-                }
-            }
+    suspend fun resetPassword(email: String) {
+        try {
+            _resetPasswordState.value = FirebaseResult.Loading
+
+            FirebaseAuth.getInstance().sendPasswordResetEmail(email).await()
+
+            _resetPasswordState.value = FirebaseResult.Success(Unit)
+
+            delay(1500)
+            _resetPasswordState.value = null
+        } catch (e: Exception) {
+            _resetPasswordState.value = FirebaseResult.Error(e)
+        }
     }
 
     fun getFirebaseErrorMessageReset(exception: Exception): String {
