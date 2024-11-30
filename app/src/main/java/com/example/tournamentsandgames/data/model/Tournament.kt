@@ -3,6 +3,7 @@ package com.example.tournamentsandgames.data.model
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
+@Suppress("DEPRECATED_ANNOTATION")
 @Parcelize
 data class Tournament(
     var id: String = "",
@@ -15,5 +16,5 @@ data class Tournament(
     var ended: Boolean = false,
     var started: Boolean = false,
     var currentRound: Int = 0,
-    var dateCreated: String? = null
+    var dateCreated: String = ""
 ) : Parcelable

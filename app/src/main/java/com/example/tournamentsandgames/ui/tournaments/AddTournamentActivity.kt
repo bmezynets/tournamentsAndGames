@@ -46,6 +46,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tournamentsandgames.data.model.Tournament
 import com.example.tournamentsandgames.data.repository.FirebaseResult
 import com.example.tournamentsandgames.ui.auth.AuthViewModel
@@ -53,7 +54,6 @@ import com.example.tournamentsandgames.ui.home.ui.theme.colorMain
 import com.example.tournamentsandgames.ui.home.ui.theme.primaryColor
 import com.example.tournamentsandgames.ui.home.ui.theme.tintColor
 import com.example.tournamentsandgames.ui.tournaments.ui.theme.TournamentsAndGamesTheme
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -77,7 +77,7 @@ class AddTournamentActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTournamentScreen() {
-    val tournamentViewModel: TournamentViewModel = TournamentViewModel()
+    val tournamentViewModel: TournamentViewModel = viewModel()
     val addTournamentState by tournamentViewModel.addTournamentState.collectAsState()
 
     var tournamentName by remember { mutableStateOf("") }
@@ -215,7 +215,7 @@ fun AddTournamentScreen() {
                 Button(
                     onClick = {
                         // Dodanie nowego turnieju
-                        val dateFormatter = DateTimeFormatter.ofPattern("dd.mm.yyyy")
+                        val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
                         val current = LocalDateTime.now().format(dateFormatter).toString()
 
                         val tournament = Tournament(

@@ -8,6 +8,8 @@ import com.example.tournamentsandgames.data.repository.FirebaseResult
 import com.example.tournamentsandgames.data.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +26,9 @@ class AuthViewModel : ViewModel() {
     // State for registration
     private val _registrationState = MutableStateFlow<FirebaseResult<Unit>>(FirebaseResult.Loading)
     val registrationState: StateFlow<FirebaseResult<Unit>> = _registrationState
+
+    private val _resetPasswordState = MutableStateFlow<FirebaseResult<Unit>>(FirebaseResult.Loading)
+    val resetPasswordState: StateFlow<FirebaseResult<Unit>> = _resetPasswordState
 
     // Login function
     fun login(email: String, password: String) {
@@ -79,6 +84,26 @@ class AuthViewModel : ViewModel() {
 
     fun resetRegistrationState() {
         _registrationState.value = FirebaseResult.Loading
+    }
+
+    fun resetPassword(email: String) {
+        _resetPasswordState.value = FirebaseResult.Loading
+        FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    _resetPasswordState.value = FirebaseResult.Success(Unit)
+                } else {
+                    _resetPasswordState.value = FirebaseResult.Error(task.exception ?: Exception("Unknown error"))
+                }
+            }
+    }
+
+    fun getFirebaseErrorMessageReset(exception: Exception): String {
+        return when (exception) {
+            is FirebaseAuthInvalidUserException -> "Nie znaleziono użytkownika z tym adresem e-mail."
+            is FirebaseAuthInvalidCredentialsException -> "Nieprawidłowy adres e-mail."
+            else -> exception.message ?: "Wystąpił nieznany błąd."
+        }
     }
 
     fun getFirebaseErrorMessage(exception: Exception): String {

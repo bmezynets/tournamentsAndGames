@@ -1,8 +1,6 @@
 package com.example.tournamentsandgames.ui.auth
 
-import android.app.Activity
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -34,11 +32,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -48,7 +44,7 @@ import com.example.tournamentsandgames.ui.auth.ui.theme.TournamentsAndGamesTheme
 import com.example.tournamentsandgames.ui.home.ui.theme.primaryColor
 import com.example.tournamentsandgames.ui.home.ui.theme.tintColor
 
-class RegistrationActivity : ComponentActivity() {
+class ResetPasswordActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -57,7 +53,7 @@ class RegistrationActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    RegistrationScreen()
+                    ResetPassword()
                 }
             }
         }
@@ -66,23 +62,20 @@ class RegistrationActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegistrationScreen() {
+fun ResetPassword() {
     val viewModel: AuthViewModel = viewModel()
-    val registrationState by viewModel.registrationState.collectAsState()
+    val resetState by viewModel.resetPasswordState.collectAsState()
 
-    var name by remember { mutableStateOf("") }
-    var surname by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
     var showModal by remember { mutableStateOf(false) }
+    var successMessage by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
@@ -94,7 +87,7 @@ fun RegistrationScreen() {
         )
 
         Text(
-            text = "Rejestracja",
+            text = "Resetuj hasło",
             style = TextStyle(
                 fontSize = 23.sp,
                 fontWeight = FontWeight.Bold
@@ -103,42 +96,6 @@ fun RegistrationScreen() {
         )
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        TextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Imię") },
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = tintColor,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                textColor = Color.Black,
-                disabledLabelColor = primaryColor,
-                focusedLabelColor = primaryColor,
-                unfocusedLabelColor = primaryColor,
-            ),
-            shape = RoundedCornerShape(10.dp)
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        TextField(
-            value = surname,
-            onValueChange = { surname = it },
-            label = { Text("Nazwisko") },
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = tintColor,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                textColor = Color.Black,
-                disabledLabelColor = primaryColor,
-                focusedLabelColor = primaryColor,
-                unfocusedLabelColor = primaryColor,
-            ),
-            shape = RoundedCornerShape(10.dp)
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
 
         // TextField for Email Input
         TextField(
@@ -157,69 +114,29 @@ fun RegistrationScreen() {
             shape = RoundedCornerShape(10.dp)
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // TextField for Password Input
-        TextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Hasło") },
-            visualTransformation = PasswordVisualTransformation(),
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = tintColor,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                textColor = Color.Black,
-                disabledLabelColor = primaryColor,
-                focusedLabelColor = primaryColor,
-                unfocusedLabelColor = primaryColor,
-            ),
-            shape = RoundedCornerShape(10.dp)
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // TextField for Confirm Password Input
-        TextField(
-            value = confirmPassword,
-            onValueChange = { confirmPassword = it },
-            label = { Text("Potwierdź Hasło") },
-            visualTransformation = PasswordVisualTransformation(),
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = tintColor,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                textColor = Color.Black,
-                disabledLabelColor = primaryColor,
-                focusedLabelColor = primaryColor,
-                unfocusedLabelColor = primaryColor,
-            ),
-            shape = RoundedCornerShape(10.dp)
-        )
-
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Button to Trigger Registration
+        // Button to Trigger Password Reset
         Button(
             onClick = {
-                if (password == confirmPassword) {
-                    viewModel.register(email, password, name, surname)
+                if (email.isNotBlank()) {
+                    viewModel.resetPassword(email)
                 } else {
-                    errorMessage = "Hasła muszą być takie same!"
+                    errorMessage = "Proszę podać adres e-mail!"
                     showModal = true
                 }
             },
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(primaryColor)
         ) {
-            Text("Zarejestruj")
+            Text("Resetuj hasło")
         }
 
         if (showModal) {
             AlertDialog(
                 onDismissRequest = { showModal = false },
-                title = { Text(text = "Nieudana rejestracja") },
-                text = { Text(text = errorMessage) },
+                title = { Text(text = if (successMessage.isNotBlank()) "Sukces" else "Błąd") },
+                text = { Text(text = if (successMessage.isNotBlank()) successMessage else errorMessage) },
                 confirmButton = {
                     TextButton(
                         onClick = { showModal = false },
@@ -232,17 +149,19 @@ fun RegistrationScreen() {
             )
         }
 
-        // Observe registration state
-        when (registrationState) {
+        // Observe reset state
+        when (resetState) {
             is FirebaseResult.Success -> {
-                Toast.makeText(LocalContext.current, "Rejestracja zakończona sukcesem!", Toast.LENGTH_SHORT).show()
-                val activity = LocalContext.current as Activity
-                activity.finish()
-            }
-            is FirebaseResult.Error -> {
-                errorMessage = viewModel.getFirebaseErrorMessage((registrationState as FirebaseResult.Error).exception)
+                successMessage = "E-mail resetowania hasła został wysłany!"
                 showModal = true
             }
+
+            is FirebaseResult.Error -> {
+                errorMessage =
+                    viewModel.getFirebaseErrorMessageReset((resetState as FirebaseResult.Error).exception)
+                showModal = true
+            }
+
             else -> {}
         }
     }

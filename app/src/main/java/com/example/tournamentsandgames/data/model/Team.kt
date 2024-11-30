@@ -3,6 +3,7 @@ package com.example.tournamentsandgames.data.model
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
+@Suppress("DEPRECATED_ANNOTATION")
 @Parcelize
 data class Team(
     var id: String = "",

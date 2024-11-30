@@ -13,4 +13,5 @@
     <string name="title_activity_tournament_tab">TournamentTabActivity</string>
     <string name="title_activity_tournaments_process">tournamentsProcessActivity</string>
     <string name="title_activity_ended_tournament_summary">EndedTournamentSummary</string>
+    <string name="title_activity_reset_password">ResetPasswordActivity</string>
 </resources>

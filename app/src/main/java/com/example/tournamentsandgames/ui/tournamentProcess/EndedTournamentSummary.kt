@@ -1,11 +1,11 @@
 package com.example.tournamentsandgames.ui.tournamentProcess
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,11 +22,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -35,7 +35,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,11 +53,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.matchsandgames.ui.matchProcess.MatchViewModel
 import com.example.tournamentsandgames.R
 import com.example.tournamentsandgames.data.model.Team
 import com.example.tournamentsandgames.data.model.Tournament
@@ -67,7 +64,6 @@ import com.example.tournamentsandgames.ui.home.Home
 import com.example.tournamentsandgames.ui.home.ui.theme.colorMain
 import com.example.tournamentsandgames.ui.home.ui.theme.darkTint
 import com.example.tournamentsandgames.ui.home.ui.theme.primaryColor
-import com.example.tournamentsandgames.ui.tournamentProcess.ui.theme.TournamentsAndGamesTheme
 import com.example.tournamentsandgames.ui.tournaments.TeamViewModel
 import com.example.tournamentsandgames.ui.tournaments.TournamentViewModel
 
@@ -81,6 +77,7 @@ class EndedTournamentSummary : ComponentActivity() {
     }
 }
 
+@SuppressLint("MutableCollectionMutableState")
 @Composable
 fun TournamentSummary(tournamentId: String) {
     val tournamentViewModel: TournamentViewModel = viewModel()
@@ -313,7 +310,8 @@ fun SummaryTeamRaw(team: Team, place: Int, onClick: () -> Unit) {
                     color = Color.Black.copy(alpha = 0.7f)
                 )
                 Icon(
-                    imageVector = Icons.Default.KeyboardArrowRight,
+                    modifier = Modifier.weight(0.2f),
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                     contentDescription = "forward",
                     tint = colorMain
                 )

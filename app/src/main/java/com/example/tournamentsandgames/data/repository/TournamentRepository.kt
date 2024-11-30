@@ -1,13 +1,8 @@
 package com.example.tournamentsandgames.data.repository
 
-import android.util.Log
-import com.example.tournamentsandgames.data.firebase.FirebaseDatabaseService
 import com.example.tournamentsandgames.data.model.Tournament
 import com.google.firebase.database.FirebaseDatabase
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.tasks.await
-import javax.inject.Singleton
 
 class TournamentRepository private constructor() {
     companion object {

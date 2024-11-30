@@ -1,13 +1,9 @@
 package com.example.tournamentsandgames.ui.home
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,13 +23,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.AlertDialogDefaults.shape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -42,7 +36,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
@@ -59,39 +52,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tournamentsandgames.R
-import com.example.tournamentsandgames.data.model.Team
 import com.example.tournamentsandgames.data.model.Tournament
 import com.example.tournamentsandgames.data.repository.FirebaseResult
 import com.example.tournamentsandgames.ui.auth.AuthViewModel
-import com.example.tournamentsandgames.ui.home.ui.theme.Pink40
 import com.example.tournamentsandgames.ui.home.ui.theme.Purple80
 import com.example.tournamentsandgames.ui.home.ui.theme.TournamentsAndGamesTheme
 import com.example.tournamentsandgames.ui.home.ui.theme.colorMain
+import com.example.tournamentsandgames.ui.home.ui.theme.colorSuccess
 import com.example.tournamentsandgames.ui.home.ui.theme.darkTint
 import com.example.tournamentsandgames.ui.home.ui.theme.primaryColor
-import com.example.tournamentsandgames.ui.home.ui.theme.tintColor
 import com.example.tournamentsandgames.ui.profile.EditPersonalData
-import com.example.tournamentsandgames.ui.theme.Pink80
-import com.example.tournamentsandgames.ui.tournaments.AddTournamentActivity
-import com.example.tournamentsandgames.ui.tournaments.TeamCard
-import com.example.tournamentsandgames.ui.tournaments.TournamentDescriptionActivity
-import com.example.tournamentsandgames.ui.tournaments.TournamentViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tournamentsandgames.ui.tournamentProcess.EndedTournamentSummary
 import com.example.tournamentsandgames.ui.tournamentTab.TournamentTabMainPage
+import com.example.tournamentsandgames.ui.tournaments.AddTournamentActivity
+import com.example.tournamentsandgames.ui.tournaments.TournamentDescriptionActivity
+import com.example.tournamentsandgames.ui.tournaments.TournamentViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -434,20 +419,21 @@ fun HomeScreen(refresh: Boolean) {
 fun HomeCard(tournament: Tournament, onClick: () -> Unit) {
     val dateFormatter = DateTimeFormatter.ofPattern("dd.mm.yyyy")
     val current =
-        if (tournament.dateCreated.isNullOrBlank()) LocalDateTime.now().format(dateFormatter).toString()
-        else tournament.dateCreated
+        tournament.dateCreated.ifBlank { LocalDateTime.now().format(dateFormatter).toString() }
+
+    val color = if(tournament.ended) colorSuccess.copy(alpha = 0.8f) else darkTint.copy(alpha = 0.8f)
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 3.dp)
             .clickable { onClick() },
         elevation = CardDefaults.cardElevation(1.dp),
-        colors = CardDefaults.cardColors(containerColor = darkTint.copy(alpha = 0.8f))
+        colors = CardDefaults.cardColors(containerColor = color)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(darkTint.copy(alpha = 0.8f))
+                .background(color)
                 .padding(16.dp),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -455,7 +441,7 @@ fun HomeCard(tournament: Tournament, onClick: () -> Unit) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(darkTint.copy(alpha = 0.8f)),
+                    .background(color),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
@@ -468,14 +454,14 @@ fun HomeCard(tournament: Tournament, onClick: () -> Unit) {
                     color = Color.Black.copy(alpha = 0.7f)
                 )
                 Text(
-                    text = "$current",
+                    text = current,
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.weight(0.3f),
                     textAlign = TextAlign.End,
                     color = Color.Black.copy(alpha = 0.7f)
                 )
                 Icon(
-                    imageVector = Icons.Default.KeyboardArrowRight,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                     contentDescription = "forward",
                     tint = colorMain
                 )

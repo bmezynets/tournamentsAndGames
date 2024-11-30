@@ -1,7 +1,6 @@
 package com.example.tournamentsandgames.data.repository
 
 import com.example.tournamentsandgames.data.model.Player
-import com.example.tournamentsandgames.data.model.Tournament
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.tasks.await
 
